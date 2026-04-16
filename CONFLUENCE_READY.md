@@ -1,6 +1,6 @@
-# Fiber Scalp v1.4 — Technical Specification & Operations Wiki
+# Fiber Scalp v1.5 — Technical Specification & Operations Wiki
 
-**Bot:** Fiber Scalp v1.4  **Pair:** EUR/USD  **Exchange:** OANDA (demo)
+**Bot:** Fiber Scalp v1.5  **Pair:** EUR/USD  **Exchange:** OANDA (demo)
 **Platform:** Railway (Singapore region)  **Timeframe:** M5  **Cycle:** 5 min
 
 ---
@@ -63,7 +63,7 @@ pip_value_usd is **static $10.00** — EUR/USD is USD-quoted, always $10/pip per
 
 | Score | Position | Units | Per pip |
 |---|---|---|---|
-| 4 | $30 partial | ~10,000 | $1.00/pip |
+| 4 | $45 partial | ~15,000 | $1.50/pip |
 | 5–6 | $60 full | ~20,000 | $2.00/pip |
 
 SL: 18p · TP: 30p · RR: 1.67× · Break-even WR: 37.5%

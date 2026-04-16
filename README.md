@@ -1,4 +1,4 @@
-# Fiber Scalp v1.4 — EUR/USD M5 Scalping Bot
+# Fiber Scalp v1.5 — EUR/USD M5 Scalping Bot
 
 > **Deployed on Railway · OANDA API · Telegram Alerts**
 
@@ -43,7 +43,7 @@ Day reset: 08:00 SGT. Global cap: 1 open trade.
 | | Value |
 |---|---|
 | Full position | $60 (score 5–6) → ~20,000 units → **$2.00/pip** |
-| Partial position | $30 (score 4) → ~10,000 units → **$1.00/pip** |
+| Partial position | $45 (score 4) → ~15,000 units → **$1.50/pip** |
 | EUR/USD SL | 18p |
 | EUR/USD TP | 30p |
 | RR | 1.67× |

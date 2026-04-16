@@ -4,7 +4,7 @@
 
 ## v1.0.0 — 2026-04-16
 
-Initial release of **Fiber Scalp v1.4** — EUR/USD (Fiber) London-primary M5 scalping bot.
+Initial release of **Fiber Scalp v1.5** — EUR/USD (Fiber) London-primary M5 scalping bot.
 Built from Ninja Scalp v1.2 / Cable Scalp v1.4 architecture. All previous bot references removed.
 
 ### Instrument
@@ -156,3 +156,20 @@ the field), the H1 section is omitted entirely — no errors.
 
 **Files changed:** `reporting.py` (helper + calls), `telegram_templates.py`
 (helper + weekly + monthly functions)
+
+---
+
+## v1.5.0 — 2026-04-16
+
+### Position sizing — $2.00/$1.50 per pip target (aligned with Cable Scalp v1.5)
+
+| | v1.4 | v1.5 | $/pip |
+|---|---|---|---|
+| Full (score 5–6) | $60 → 20,000 units | $60 → 20,000 units ✅ | **$2.00/pip** |
+| Partial (score 4) | $30 → 10,000 units | **$45 → 15,000 units** | **$1.50/pip** |
+
+Only the partial position changed — full was already correct at $2.00/pip.
+Sizing now consistent across Cable Scalp v1.5 and Fiber Scalp v1.5.
+
+**Files changed:** `settings.json`, `settings.json.example`, `bot.py` (default),
+`telegram_templates.py` (default param), all docs.

@@ -1,4 +1,4 @@
-# Fiber Scalp v1.4 — Settings Reference
+# Fiber Scalp v1.5 — Settings Reference
 
 All configuration lives in `settings.json` on the Railway volume (`/data`).
 
@@ -8,7 +8,7 @@ All configuration lives in `settings.json` on the Railway volume (`/data`).
 
 | Key | Value |
 |---|---|
-| `bot_name` | `"Fiber Scalp v1.4"` |
+| `bot_name` | `"Fiber Scalp v1.5"` |
 | `demo_mode` | `true` |
 
 ---
@@ -47,7 +47,7 @@ All configuration lives in `settings.json` on the Railway volume (`/data`).
 | Key | Value | Notes |
 |---|---|---|
 | `position_full_usd` | `60` | Score 5–6 → ~20,000 units → **$2.00/pip** |
-| `position_partial_usd` | `30` | Score 4 → ~10,000 units → **$1.00/pip** |
+| `position_partial_usd` | `45` | Score 4 → ~15,000 units → **$1.50/pip** |
 | `min_trade_units` | `1000` | |
 
 ---

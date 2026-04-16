@@ -1,5 +1,5 @@
 {
-  "bot_name": "Fiber Scalp v1.4",
+  "bot_name": "Fiber Scalp v1.5",
   "demo_mode": true,
   "enabled": true,
   "_comment_pairs": "Per-pair settings override any matching global key for that pair's cycle.",
@@ -19,7 +19,7 @@
   "_comment_global": "Global defaults \u2014 used as fallback when a key is absent from the pair block.",
   "signal_threshold": 4,
   "position_full_usd": 60,
-  "position_partial_usd": 30,
+  "position_partial_usd": 45,
   "pip_size": 0.0001,
   "breakeven_enabled": false,
   "margin_safety_factor": 0.6,
