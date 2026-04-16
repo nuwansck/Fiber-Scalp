@@ -1,4 +1,4 @@
-# Fiber Scalp v1.1 — Settings Reference
+# Fiber Scalp v1.2 — Settings Reference
 
 All configuration lives in `settings.json` on the Railway volume (`/data`).
 
@@ -8,7 +8,7 @@ All configuration lives in `settings.json` on the Railway volume (`/data`).
 
 | Key | Value |
 |---|---|
-| `bot_name` | `"Fiber Scalp v1.1"` |
+| `bot_name` | `"Fiber Scalp v1.2"` |
 | `demo_mode` | `true` |
 
 ---
@@ -74,8 +74,8 @@ All configuration lives in `settings.json` on the Railway volume (`/data`).
 }
 ```
 
-**Tokyo threshold 99 = effectively disabled.**
-To enable Tokyo: change to 5 or 6.
+**Dead zone 04:00–15:59 = Tokyo hours fully covered.**
+To enable Tokyo trading: set `dead_zone_end_hour: 7` and `session_thresholds.Tokyo: 5`.
 
 ---
 

@@ -1,4 +1,4 @@
-"""Main orchestrator for Fiber Scalp v1.1 — EUR/USD M5 Scalper
+"""Main orchestrator for Fiber Scalp v1.2 — EUR/USD M5 Scalper
 
 Dedicated EUR/USD (Fiber) scalping bot. Single pair, clean data, focused strategy.
 Tokyo session primary. Dynamic JPY pip value calculation each cycle.
@@ -132,7 +132,7 @@ def _pip_size(settings: dict) -> float:
 def _pip_dp(pip: float) -> int:
     """Decimal places for price rounding given pip size."""
     if pip <= 0.0001: return 5   # Non-JPY pairs
-    if pip <= 0.01:   return 3   # JPY pairs — Fiber Scalp v1.1
+    if pip <= 0.01:   return 3   # JPY pairs — Fiber Scalp v1.2
     return 2
 
 
@@ -194,7 +194,7 @@ def _signal_payload(**kwargs):
 # ── Settings ──────────────────────────────────────────────────────────────────
 
 def validate_settings(settings: dict) -> dict:
-    required = ["pairs"]  # Fiber Scalp v1.1: pair_sl_tp fixed pips used exclusively
+    required = ["pairs"]  # Fiber Scalp v1.2: pair_sl_tp fixed pips used exclusively
     missing  = [k for k in required if k not in settings]
     if missing:
         raise ValueError(f"Missing required settings keys: {missing}")
@@ -245,8 +245,8 @@ def validate_settings(settings: dict) -> dict:
     settings.setdefault("us_session_start_hour",      21)  # v1.0: US session enabled
     settings.setdefault("us_session_end_hour",        23)  # v1.0: US session enabled
     settings.setdefault("us_session_early_end_hour",   3)  # v1.0: US cont enabled
-    settings.setdefault("dead_zone_start_hour",        4)   # 04:00 SGT — pre-Tokyo gap
-    settings.setdefault("dead_zone_end_hour",           7)   # 07:59 SGT end
+    settings.setdefault("dead_zone_start_hour",        4)   # 04:00 SGT — dead zone start
+    settings.setdefault("dead_zone_end_hour",          15)   # 15:59 SGT — covers Tokyo (EUR/USD inactive)
     # report schedule times (SGT)
     settings.setdefault("daily_report_hour_sgt",       4)   # 04:00 SGT — dead zone start
     settings.setdefault("daily_report_minute_sgt",     0)
@@ -270,7 +270,7 @@ def validate_settings(settings: dict) -> dict:
     })
     # dead zone = pre-Tokyo gap 04:00–07:59 SGT (overrides any stale setdefault above)
     settings["dead_zone_start_hour"] = int(settings.get("dead_zone_start_hour", 4))
-    settings["dead_zone_end_hour"]   = int(settings.get("dead_zone_end_hour",   7))
+    settings["dead_zone_end_hour"]   = int(settings.get("dead_zone_end_hour",  15))
     # Ensure Tokyo threshold is present in session_thresholds
     st = settings.setdefault("session_thresholds", {})
     st.setdefault("Tokyo", 5)
@@ -866,7 +866,7 @@ def _guard_phase(db, run_id, settings, alert, history, now_sgt, today, demo,
         log.warning(w, extra={"run_id": run_id})
 
     log.info("=== %s | %s | %s SGT ===",
-             settings.get("bot_name", "Fiber Scalp v1.1"), instrument,
+             settings.get("bot_name", "Fiber Scalp v1.2"), instrument,
              now_sgt.strftime("%Y-%m-%d %H:%M"),
              extra={"run_id": run_id, "pair": instrument})
     update_runtime_state(

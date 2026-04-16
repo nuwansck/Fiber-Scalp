@@ -1,5 +1,5 @@
 """
-Forex Factory calendar fetcher for Fiber Scalp v1.1.
+Forex Factory calendar fetcher for Fiber Scalp v1.2.
 
 Architecture-only improvements:
 - Uses /data/runtime_state.json cooldown tracking

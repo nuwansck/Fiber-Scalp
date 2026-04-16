@@ -1,6 +1,6 @@
-# Fiber Scalp v1.1 — Technical Specification & Operations Wiki
+# Fiber Scalp v1.2 — Technical Specification & Operations Wiki
 
-**Bot:** Fiber Scalp v1.1  **Pair:** EUR/USD  **Exchange:** OANDA (demo)
+**Bot:** Fiber Scalp v1.2  **Pair:** EUR/USD  **Exchange:** OANDA (demo)
 **Platform:** Railway (Singapore region)  **Timeframe:** M5  **Cycle:** 5 min
 
 ---
@@ -47,14 +47,13 @@ All times SGT (UTC+8):
 
 | Session | Window | Threshold | Cap | Notes |
 |---|---|---|---|---|
-| Dead zone | 04:00–07:59 | No trading | — | |
-| Tokyo | 08:00–15:59 | 99 (disabled) | — | EUR/USD inactive in Asian hours |
+| Dead zone | 04:00–15:59 | No trading | — | Covers pre-Tokyo gap + full Tokyo window. Zero API calls. |
 | London | 16:00–20:59 | ≥ 4/6 | 10 | PRIMARY — best EUR/USD session |
 | US | 21:00–23:59 | ≥ 4/6 | 10 | Secondary |
 | US cont | 00:00–03:59 | ≥ 4/6 | 10 | Secondary |
 
-Tokyo disabled via `session_thresholds.Tokyo: 99` — EUR/USD has minimal movement
-during Asian hours. London open is where EUR/USD makes its daily range.
+Dead zone extended to 04:00–15:59 SGT — covers the full Tokyo window.
+Zero API calls during inactive hours. Bot wakes up at 16:00 for London open.
 
 ---
 

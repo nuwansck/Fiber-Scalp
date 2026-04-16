@@ -1,4 +1,4 @@
-"""Telegram message templates for Fiber Scalp v1.1.2
+"""Telegram message templates for Fiber Scalp v1.2.2
 AtomicFX-style: clean, state-change only, minimal noise.
 """
 from __future__ import annotations
@@ -36,7 +36,7 @@ def _split_banner(banner: str) -> tuple[str, str]:
     """Extract pair from banner.
     Handles both:
       '🇬🇧 LONDON [EUR/USD]'  → ('🇬🇧 LONDON [EUR/USD]', 'EUR/USD')
-      'Fiber Scalp v1.1.2 | EUR/USD' → ('Fiber Scalp v1.1.2', 'EUR/USD')
+      'Fiber Scalp v1.2.2 | EUR/USD' → ('Fiber Scalp v1.2.2', 'EUR/USD')
     """
     if "[" in banner and "]" in banner:
         pair = banner[banner.index("[")+1 : banner.index("]")]
@@ -410,8 +410,9 @@ def msg_startup(
         f"{_DIV}\n"
         f"Sessions (SGT = UTC+8)\n"
         f"  ✈️  {dead_zone_start:02d}:00–{dead_zone_end:02d}:59  Dead zone\n"
-        + (f"  🚫 Tokyo      disabled\n" if tok_thr >= 99 else
-           f"  🗼 {tokyo_start:02d}:00–{tokyo_end:02d}:59  Tokyo      cap {max_trades_tokyo}  score≥{tok_thr}\n")
+        + ("" if (tok_thr >= 99 and dead_zone_end >= tokyo_end) else
+           (f"  🚫 Tokyo      disabled\n" if tok_thr >= 99 else
+           f"  🗼 {tokyo_start:02d}:00–{tokyo_end:02d}:59  Tokyo      cap {max_trades_tokyo}  score≥{tok_thr}\n"))
         + f"  🇬🇧 {london_start:02d}:00–{london_end:02d}:59  London     cap {max_trades_london}  score≥{lon_thr}\n"
         + (f"  🚫 US session   disabled\n" if us_start >= 99 else
            f"  🗽 {us_start:02d}:00–{us_end:02d}:59  US         cap {max_trades_us}  score≥{us_thr}\n")

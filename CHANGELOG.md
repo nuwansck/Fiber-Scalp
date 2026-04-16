@@ -4,7 +4,7 @@
 
 ## v1.0.0 — 2026-04-16
 
-Initial release of **Fiber Scalp v1.1** — EUR/USD (Fiber) London-primary M5 scalping bot.
+Initial release of **Fiber Scalp v1.2** — EUR/USD (Fiber) London-primary M5 scalping bot.
 Built from Ninja Scalp v1.2 / Cable Scalp v1.4 architecture. All previous bot references removed.
 
 ### Instrument
@@ -83,3 +83,32 @@ session open alert. If `threshold >= 99` the card is suppressed entirely.
 Tokyo open card will never fire for Fiber Scalp while Tokyo is disabled.
 
 **File changed:** `bot.py` — `_guard_phase()` session open block
+
+---
+
+## v1.2.0 — 2026-04-16
+
+### Extended dead zone to cover Tokyo hours (04:00–15:59 SGT)
+
+**Why:**
+Tokyo was already disabled via `session_thresholds.Tokyo: 99` (score impossible
+to reach). But the bot still ran a full cycle every 5 minutes during Tokyo hours
+— fetching prices, calculating EMAs, querying OANDA — just to immediately
+conclude no trade. Wasteful and produced misleading log lines
+(`Session: Tokyo Window`).
+
+**Fix:**
+`dead_zone_end_hour` extended from `7` to `15` in settings.json.
+The dead zone now covers 04:00–15:59 SGT — the full pre-London inactive period.
+Bot exits immediately with zero API calls during these hours.
+Wakes up at 16:00 SGT for the London open.
+
+**Startup card:**
+Tokyo line removed entirely — dead zone `04:00–15:59` communicates everything.
+No redundant "Tokyo disabled" label needed.
+
+**Settings changed:**
+- `dead_zone_end_hour`: `7` → `15`
+
+**Files changed:** `settings.json`, `settings.json.example`, `bot.py` (defaults),
+`telegram_templates.py` (startup card), all docs.

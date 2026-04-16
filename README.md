@@ -1,4 +1,4 @@
-# Fiber Scalp v1.1 — EUR/USD M5 Scalping Bot
+# Fiber Scalp v1.2 — EUR/USD M5 Scalping Bot
 
 > **Deployed on Railway · OANDA API · Telegram Alerts**
 
@@ -27,8 +27,8 @@ Score 5–6 → full $60. Score 4 → partial $30.
 ## Sessions (SGT = UTC+8)
 
 ```
-✈️  04:00–07:59  Dead zone       No entries
-🚫 08:00–15:59  Tokyo           DISABLED — EUR/USD inactive in Asian hours
+✈️  04:00–15:59  Dead zone       No entries, zero API calls
+                                (covers pre-Tokyo gap + full Tokyo window)
 🇬🇧 16:00–20:59  London          score ≥4/6  cap 10  ← PRIMARY
 🗽 21:00–23:59  US              score ≥4/6  cap 10  ← SECONDARY
 🗽 00:00–03:59  US cont         score ≥4/6  cap 10  ← SECONDARY
