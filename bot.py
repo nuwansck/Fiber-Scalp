@@ -1,4 +1,4 @@
-"""Main orchestrator for Fiber Scalp v1.3 — EUR/USD M5 Scalper
+"""Main orchestrator for Fiber Scalp v1.4 — EUR/USD M5 Scalper
 
 Dedicated EUR/USD (Fiber) scalping bot. Single pair, clean data, focused strategy.
 Tokyo session primary. Dynamic JPY pip value calculation each cycle.
@@ -132,7 +132,7 @@ def _pip_size(settings: dict) -> float:
 def _pip_dp(pip: float) -> int:
     """Decimal places for price rounding given pip size."""
     if pip <= 0.0001: return 5   # Non-JPY pairs
-    if pip <= 0.01:   return 3   # JPY pairs — Fiber Scalp v1.3
+    if pip <= 0.01:   return 3   # JPY pairs — Fiber Scalp v1.4
     return 2
 
 
@@ -194,7 +194,7 @@ def _signal_payload(**kwargs):
 # ── Settings ──────────────────────────────────────────────────────────────────
 
 def validate_settings(settings: dict) -> dict:
-    required = ["pairs"]  # Fiber Scalp v1.3: pair_sl_tp fixed pips used exclusively
+    required = ["pairs"]  # Fiber Scalp v1.4: pair_sl_tp fixed pips used exclusively
     missing  = [k for k in required if k not in settings]
     if missing:
         raise ValueError(f"Missing required settings keys: {missing}")
@@ -866,7 +866,7 @@ def _guard_phase(db, run_id, settings, alert, history, now_sgt, today, demo,
         log.warning(w, extra={"run_id": run_id})
 
     log.info("=== %s | %s | %s SGT ===",
-             settings.get("bot_name", "Fiber Scalp v1.3"), instrument,
+             settings.get("bot_name", "Fiber Scalp v1.4"), instrument,
              now_sgt.strftime("%Y-%m-%d %H:%M"),
              extra={"run_id": run_id, "pair": instrument})
     update_runtime_state(

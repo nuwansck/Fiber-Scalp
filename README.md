@@ -1,4 +1,4 @@
-# Fiber Scalp v1.3 — EUR/USD M5 Scalping Bot
+# Fiber Scalp v1.4 — EUR/USD M5 Scalping Bot
 
 > **Deployed on Railway · OANDA API · Telegram Alerts**
 

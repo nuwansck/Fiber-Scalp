@@ -1,4 +1,4 @@
-"""Telegram message templates for Fiber Scalp v1.3.2
+"""Telegram message templates for Fiber Scalp v1.4.2
 AtomicFX-style: clean, state-change only, minimal noise.
 """
 from __future__ import annotations
@@ -36,7 +36,7 @@ def _split_banner(banner: str) -> tuple[str, str]:
     """Extract pair from banner.
     Handles both:
       '🇬🇧 LONDON [EUR/USD]'  → ('🇬🇧 LONDON [EUR/USD]', 'EUR/USD')
-      'Fiber Scalp v1.3.2 | EUR/USD' → ('Fiber Scalp v1.3.2', 'EUR/USD')
+      'Fiber Scalp v1.4.2 | EUR/USD' → ('Fiber Scalp v1.4.2', 'EUR/USD')
     """
     if "[" in banner and "]" in banner:
         pair = banner[banner.index("[")+1 : banner.index("]")]
@@ -492,7 +492,58 @@ def msg_daily_report(
 
 # ── 16. Weekly report ─────────────────────────────────────────────────────────
 
-def msg_weekly_report(week_label, stats, sessions, setups, report_time, pairs=None) -> str:
+
+def _h1_section(h1_stats: dict | None) -> str:
+    """Render H1 filter aligned vs counter-trend breakdown block."""
+    if not h1_stats:
+        return ""
+    a  = h1_stats.get("aligned", {})
+    ct = h1_stats.get("counter", {})
+    if not a and not ct:
+        return ""
+
+    lines = [f"{_DIV}\nH1 Filter [soft]\n"]
+
+    mx = max(a.get("win_rate", 0), ct.get("win_rate", 0)) or 1
+
+    if a.get("count", 0) > 0:
+        bar = _ascii_bar(a["win_rate"], mx)
+        lines.append(
+            f"  Aligned    {bar} {a['win_rate']:>5.1f}%  "
+            f"{a['wins']}W/{a['losses']}L  ${a['net_pnl']:+.2f}\n"
+        )
+    else:
+        lines.append("  Aligned    — no trades\n")
+
+    if ct.get("count", 0) > 0:
+        bar = _ascii_bar(ct["win_rate"], mx)
+        lines.append(
+            f"  Counter ⚠️  {bar} {ct['win_rate']:>5.1f}%  "
+            f"{ct['wins']}W/{ct['losses']}L  ${ct['net_pnl']:+.2f}\n"
+        )
+    else:
+        lines.append("  Counter ⚠️  — no trades\n")
+
+    # Recommendation line
+    a_wr  = a.get("win_rate", 0)
+    ct_wr = ct.get("win_rate", 0)
+    ct_n  = ct.get("count", 0)
+    diff  = round(a_wr - ct_wr, 1)
+
+    if ct_n < 5:
+        rec = f"  → {ct_n} counter-trend trades — need more data"
+    elif diff >= 20:
+        rec = f"  → Counter-trend {diff}pts lower — consider strict mode"
+    elif diff >= 10:
+        rec = f"  → Counter-trend {diff}pts lower — monitor closely"
+    else:
+        rec = f"  → H1 split similar ({diff}pts) — soft mode justified"
+
+    lines.append(rec + "\n")
+    return "".join(lines)
+
+
+def msg_weekly_report(week_label, stats, sessions, setups, report_time, pairs=None, h1_stats=None) -> str:
     if stats["count"] == 0:
         return f"📅 Weekly Report — {week_label}\n{_DIV}\nNo closed trades.\nReport: {report_time}"
 
@@ -537,14 +588,16 @@ def msg_weekly_report(week_label, stats, sessions, setups, report_time, pairs=No
         f"{_DIV}\nBy Session\n{_sec(sessions)}"
         f"{_DIV}\nBy Pair\n{_sec(pairs) if pairs else ''}"
         f"{_DIV}\nBy Setup\n{_setup_sec(setups)}"
-        f"{_DIV}\n{verdict}\nReport: {report_time}"
+        + _h1_section(h1_stats)
+        + f"{_DIV}\n{verdict}\nReport: {report_time}"
     )
 
 
 # ── 17. Monthly report ────────────────────────────────────────────────────────
 
 def msg_monthly_report(month_label, stats, sessions, setups, scores,
-                       mom_delta, prior_month_pnl, report_time) -> str:
+                       mom_delta, prior_month_pnl, report_time,
+                       h1_stats=None) -> str:
     if stats["count"] == 0:
         return f"📆 Monthly Report — {month_label}\n{_DIV}\nNo closed trades.\nReport: {report_time}"
 
@@ -593,5 +646,6 @@ def msg_monthly_report(month_label, stats, sessions, setups, scores,
         f"{_DIV}\nBy Session\n{_sec(sessions)}"
         f"{_DIV}\nBy Setup\n{_sec(setups)}"
         f"{_DIV}\nBy Score\n{_sec(scores, w=8)}"
-        f"{_DIV}\n{verdict}\n💡 {rec}\nReport: {report_time}"
+        + _h1_section(h1_stats)
+        + f"{_DIV}\n{verdict}\n💡 {rec}\nReport: {report_time}"
     )

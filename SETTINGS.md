@@ -1,4 +1,4 @@
-# Fiber Scalp v1.3 — Settings Reference
+# Fiber Scalp v1.4 — Settings Reference
 
 All configuration lives in `settings.json` on the Railway volume (`/data`).
 
@@ -8,7 +8,7 @@ All configuration lives in `settings.json` on the Railway volume (`/data`).
 
 | Key | Value |
 |---|---|
-| `bot_name` | `"Fiber Scalp v1.3"` |
+| `bot_name` | `"Fiber Scalp v1.4"` |
 | `demo_mode` | `true` |
 
 ---

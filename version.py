@@ -1,2 +1,2 @@
-VERSION     = "1.3.0"
-DESCRIPTION = "Fiber Scalp v1.3 — max_total_open_trades set to 1 (matches per-pair cap)"
+VERSION     = "1.4.0"
+DESCRIPTION = "Fiber Scalp v1.4 — H1 filter split in weekly and monthly reports"

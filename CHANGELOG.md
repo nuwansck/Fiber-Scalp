@@ -4,7 +4,7 @@
 
 ## v1.0.0 — 2026-04-16
 
-Initial release of **Fiber Scalp v1.3** — EUR/USD (Fiber) London-primary M5 scalping bot.
+Initial release of **Fiber Scalp v1.4** — EUR/USD (Fiber) London-primary M5 scalping bot.
 Built from Ninja Scalp v1.2 / Cable Scalp v1.4 architecture. All previous bot references removed.
 
 ### Instrument
@@ -125,3 +125,34 @@ The global cap was set to 2 which was misleading — startup card showed
 
 Changed `max_total_open_trades: 2 → 1` to match reality.
 Startup card now correctly shows "Global cap: 1 open trade".
+
+---
+
+## v1.4.0 — 2026-04-16
+
+### H1 filter split added to weekly and monthly reports
+
+**Why:**
+The H1 aligned vs counter-trend split was only available by downloading
+`trade_history.json` and analysing manually. Now it appears automatically
+in every weekly and monthly Telegram report.
+
+**Weekly report — new H1 Filter section:**
+```
+H1 Filter [soft]
+  Aligned    ██████████  75.0%  6W/2L  $+156.00
+  Counter ⚠️  ████░░░░░░  33.3%  1W/2L  $-18.00
+  → Counter-trend 41.7pts lower — consider strict mode
+```
+
+**Recommendation line logic:**
+- < 5 counter-trend trades → "need more data"
+- Difference ≥ 20pts → "consider strict mode"
+- Difference ≥ 10pts → "monitor closely"
+- Difference < 10pts → "soft mode justified"
+
+**Graceful fallback:** If no h1_aligned data exists (old trades without
+the field), the H1 section is omitted entirely — no errors.
+
+**Files changed:** `reporting.py` (helper + calls), `telegram_templates.py`
+(helper + weekly + monthly functions)

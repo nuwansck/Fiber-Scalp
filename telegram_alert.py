@@ -1,5 +1,5 @@
 """
-Telegram Alert System — Fiber Scalp v1.3
+Telegram Alert System — Fiber Scalp v1.4
 
 Retries up to 3 times on 5xx errors with exponential backoff.
 HTTP 429 (rate-limit) respects the Retry-After header.
@@ -35,7 +35,7 @@ class TelegramAlert:
             log.warning("Telegram not configured.")
             return False
 
-        _bot_name = load_settings().get("bot_name", "Fiber Scalp v1.3")
+        _bot_name = load_settings().get("bot_name", "Fiber Scalp v1.4")
         url  = f"https://api.telegram.org/bot{self.token}/sendMessage"
         text = f"\U0001f916 {_bot_name}\n{chr(0x2500) * 22}\n{message}"
 

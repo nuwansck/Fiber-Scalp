@@ -1,6 +1,6 @@
-# Fiber Scalp v1.3 — Technical Specification & Operations Wiki
+# Fiber Scalp v1.4 — Technical Specification & Operations Wiki
 
-**Bot:** Fiber Scalp v1.3  **Pair:** EUR/USD  **Exchange:** OANDA (demo)
+**Bot:** Fiber Scalp v1.4  **Pair:** EUR/USD  **Exchange:** OANDA (demo)
 **Platform:** Railway (Singapore region)  **Timeframe:** M5  **Cycle:** 5 min
 
 ---

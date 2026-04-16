@@ -1,4 +1,4 @@
-"""OANDA execution layer for Fiber Scalp v1.3.
+"""OANDA execution layer for Fiber Scalp v1.4.
 
 Handles pricing, order placement, trade lookup, stop updates, and retry-safe
 HTTP communication with OANDA.
