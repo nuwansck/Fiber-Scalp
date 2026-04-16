@@ -117,7 +117,7 @@ def load_settings() -> dict:
 
     original_keys = set(settings.keys())
 
-    settings.setdefault('bot_name', 'Fiber Scalp v1.2')
+    settings.setdefault('bot_name', 'Fiber Scalp v1.3')
     settings.setdefault('enabled', True)
     settings.setdefault('cycle_minutes', 5)
     settings.setdefault('db_retention_days', 90)
@@ -169,7 +169,7 @@ def load_settings() -> dict:
     settings.setdefault('tokyo_session_end_hour',    15)
     settings.setdefault('max_trades_tokyo',          10)
     # Global concurrent-trade cap
-    settings.setdefault('max_total_open_trades',      2)
+    settings.setdefault('max_total_open_trades',      1)
     # TP2 reference multiplier shown in trade opened Telegram alert
     settings.setdefault('tp2_rr_reference',           3.0)
     # minimum units after margin guard — reject micro-orders gracefully

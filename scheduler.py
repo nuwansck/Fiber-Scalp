@@ -147,7 +147,7 @@ def main():
     # Avoids re-reading secrets + creating new HTTP sessions every 5 minutes.
     _alert = TelegramAlert()
 
-    logger.info('%s — Scheduler starting', settings.get('bot_name', 'Fiber Scalp v1.2'))
+    logger.info('%s — Scheduler starting', settings.get('bot_name', 'Fiber Scalp v1.3'))
     logger.info('DATA_DIR : %s', DATA_DIR)
     logger.info('Python   : %s', sys.version.split()[0])
     for warning in run_startup_checks():
@@ -259,7 +259,7 @@ def main():
         _balance = _summary["balance"] if _summary else 0.0
         _threshold = int(settings.get('signal_threshold', 4))
         _mode    = 'DEMO' if settings.get('demo_mode', True) else 'LIVE'
-        _version = settings.get('bot_name', 'Fiber Scalp v1.2')
+        _version = settings.get('bot_name', 'Fiber Scalp v1.3')
 
         # ── Startup message deduplication ──────────────────────────────────
         # Suppress duplicate startup alerts when Railway restarts the container
@@ -291,7 +291,7 @@ def main():
                 london_end=int(settings.get('london_session_end_hour', 20)),
                 us_start=int(settings.get('us_session_start_hour', 21)),
                 us_end=int(settings.get('us_session_end_hour', 23)),
-                max_total_open=int(settings.get('max_total_open_trades', 2)),
+                max_total_open=int(settings.get('max_total_open_trades', 1)),
                 tg_min_score=int(settings.get('telegram_min_score_alert', 3)),
                 h1_filter_enabled=bool(settings.get('h1_filter_enabled', True)),
                 h1_filter_mode=settings.get('h1_filter_mode', 'soft'),

@@ -4,7 +4,7 @@
 
 ## v1.0.0 — 2026-04-16
 
-Initial release of **Fiber Scalp v1.2** — EUR/USD (Fiber) London-primary M5 scalping bot.
+Initial release of **Fiber Scalp v1.3** — EUR/USD (Fiber) London-primary M5 scalping bot.
 Built from Ninja Scalp v1.2 / Cable Scalp v1.4 architecture. All previous bot references removed.
 
 ### Instrument
@@ -112,3 +112,16 @@ No redundant "Tokyo disabled" label needed.
 
 **Files changed:** `settings.json`, `settings.json.example`, `bot.py` (defaults),
 `telegram_templates.py` (startup card), all docs.
+
+---
+
+## v1.3.0 — 2026-04-16
+
+### Fix — max_total_open_trades corrected to 1
+
+Fiber Scalp trades a single pair (EUR/USD) with max_concurrent_trades: 1.
+The global cap was set to 2 which was misleading — startup card showed
+"Global cap: 2 open trades" but the per-pair limit of 1 always bound first.
+
+Changed `max_total_open_trades: 2 → 1` to match reality.
+Startup card now correctly shows "Global cap: 1 open trade".

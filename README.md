@@ -1,4 +1,4 @@
-# Fiber Scalp v1.2 — EUR/USD M5 Scalping Bot
+# Fiber Scalp v1.3 — EUR/USD M5 Scalping Bot
 
 > **Deployed on Railway · OANDA API · Telegram Alerts**
 
@@ -34,7 +34,7 @@ Score 5–6 → full $60. Score 4 → partial $30.
 🗽 00:00–03:59  US cont         score ≥4/6  cap 10  ← SECONDARY
 ```
 
-Day reset: 08:00 SGT. Global cap: 2 open trades.
+Day reset: 08:00 SGT. Global cap: 1 open trade.
 
 ---
 

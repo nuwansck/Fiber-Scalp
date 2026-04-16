@@ -1,5 +1,5 @@
 """
-Startup/runtime reconciliation helpers for Fiber Scalp v1.2.
+Startup/runtime reconciliation helpers for Fiber Scalp v1.3.
 Broker state is treated as the source of truth for open positions/trades.
 """
 from __future__ import annotations

@@ -1,4 +1,4 @@
-# Fiber Scalp v1.2 — Settings Reference
+# Fiber Scalp v1.3 — Settings Reference
 
 All configuration lives in `settings.json` on the Railway volume (`/data`).
 
@@ -8,7 +8,7 @@ All configuration lives in `settings.json` on the Railway volume (`/data`).
 
 | Key | Value |
 |---|---|
-| `bot_name` | `"Fiber Scalp v1.2"` |
+| `bot_name` | `"Fiber Scalp v1.3"` |
 | `demo_mode` | `true` |
 
 ---
@@ -83,7 +83,7 @@ To enable Tokyo trading: set `dead_zone_end_hour: 7` and `session_thresholds.Tok
 
 | Key | Default |
 |---|---|
-| `max_total_open_trades` | `2` |
+| `max_total_open_trades` | `1` |
 | `max_losing_trades_day` | `8` |
 | `max_trades_london` | `10` |
 | `max_trades_us` | `10` |

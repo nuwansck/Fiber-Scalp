@@ -1,4 +1,4 @@
-"""Telegram message templates for Fiber Scalp v1.2.2
+"""Telegram message templates for Fiber Scalp v1.3.2
 AtomicFX-style: clean, state-change only, minimal noise.
 """
 from __future__ import annotations
@@ -36,7 +36,7 @@ def _split_banner(banner: str) -> tuple[str, str]:
     """Extract pair from banner.
     Handles both:
       '🇬🇧 LONDON [EUR/USD]'  → ('🇬🇧 LONDON [EUR/USD]', 'EUR/USD')
-      'Fiber Scalp v1.2.2 | EUR/USD' → ('Fiber Scalp v1.2.2', 'EUR/USD')
+      'Fiber Scalp v1.3.2 | EUR/USD' → ('Fiber Scalp v1.3.2', 'EUR/USD')
     """
     if "[" in banner and "]" in banner:
         pair = banner[banner.index("[")+1 : banner.index("]")]
@@ -389,7 +389,7 @@ def msg_startup(
     max_losing_day=8, trading_day_start_hour=8,
     us_early_end=3, dead_zone_start=4, dead_zone_end=7,
     tokyo_start=8, tokyo_end=15, london_start=16, london_end=20,
-    us_start=21, us_end=23, max_total_open=2,
+    us_start=21, us_end=23, max_total_open=1,
     position_full_usd=48, position_partial_usd=30, session_thresholds=None,
     tg_min_score=3, h1_filter_enabled=True, h1_filter_mode="soft",
 ) -> str:

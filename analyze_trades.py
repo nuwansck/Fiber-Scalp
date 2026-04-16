@@ -1,5 +1,5 @@
 """
-analyze_trades.py — Fiber Scalp v1.2 — Performance Dashboard
+analyze_trades.py — Fiber Scalp v1.3 — Performance Dashboard
 Run from the same folder as trade_history.json:
 
     python analyze_trades.py              # all FILLED trades
