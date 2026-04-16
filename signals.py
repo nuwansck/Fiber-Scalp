@@ -1,4 +1,4 @@
-"""Signal engine for EMA crossover + ORB scalping — Fiber Scalp v1.0
+"""Signal engine for EMA crossover + ORB scalping — Fiber Scalp v1.1
 
 Dedicated to EUR/USD (Fiber).
 instrument is passed explicitly to analyze(); no pair is hard-coded.
@@ -135,7 +135,7 @@ class SignalEngine:
         """Run the Fiber Scalp EMA + ORB (time-decayed) + CPR-bias scoring engine.
 
         Args:
-            instrument: OANDA instrument code (EUR_USD for Fiber Scalp v1.0)
+            instrument: OANDA instrument code (EUR_USD for Fiber Scalp v1.1)
             settings:   merged (global + pair-specific) settings dict
 
         Returns:

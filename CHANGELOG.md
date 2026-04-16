@@ -4,7 +4,7 @@
 
 ## v1.0.0 — 2026-04-16
 
-Initial release of **Fiber Scalp v1.0** — EUR/USD (Fiber) London-primary M5 scalping bot.
+Initial release of **Fiber Scalp v1.1** — EUR/USD (Fiber) London-primary M5 scalping bot.
 Built from Ninja Scalp v1.2 / Cable Scalp v1.4 architecture. All previous bot references removed.
 
 ### Instrument
@@ -65,3 +65,21 @@ Full parity with Cable Scalp v1.4 and Ninja Scalp v1.2:
 - position_full_usd: $48 → $60
 - Tokyo: disabled (threshold 99) ← EUR/USD specific
 - US sessions: enabled (London primary, US secondary)
+
+---
+
+## v1.1.0 — 2026-04-16
+
+### Fix — Session open card firing for disabled Tokyo session
+
+**Problem:**
+On startup at 15:23 SGT (inside Tokyo hours), the bot sent a
+`EUR_USD Tokyo Window Open` Telegram card even though Tokyo is disabled
+(`session_thresholds.Tokyo: 99`). Cosmetic but confusing.
+
+**Fix:**
+`_guard_phase()` now checks the session threshold before sending the
+session open alert. If `threshold >= 99` the card is suppressed entirely.
+Tokyo open card will never fire for Fiber Scalp while Tokyo is disabled.
+
+**File changed:** `bot.py` — `_guard_phase()` session open block

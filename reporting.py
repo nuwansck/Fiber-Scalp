@@ -1,4 +1,4 @@
-"""reporting.py — Fiber Scalp v1.0 Telegram Performance Reports
+"""reporting.py — Fiber Scalp v1.1 Telegram Performance Reports
 
 Three scheduled reports, all reading directly from /data/trade_history.json
 on the Railway persistent volume. No archive file needed — the 90-day rolling

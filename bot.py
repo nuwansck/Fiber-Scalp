@@ -1,4 +1,4 @@
-"""Main orchestrator for Fiber Scalp v1.0 — EUR/USD M5 Scalper
+"""Main orchestrator for Fiber Scalp v1.1 — EUR/USD M5 Scalper
 
 Dedicated EUR/USD (Fiber) scalping bot. Single pair, clean data, focused strategy.
 Tokyo session primary. Dynamic JPY pip value calculation each cycle.
@@ -132,7 +132,7 @@ def _pip_size(settings: dict) -> float:
 def _pip_dp(pip: float) -> int:
     """Decimal places for price rounding given pip size."""
     if pip <= 0.0001: return 5   # Non-JPY pairs
-    if pip <= 0.01:   return 3   # JPY pairs — Fiber Scalp v1.0
+    if pip <= 0.01:   return 3   # JPY pairs — Fiber Scalp v1.1
     return 2
 
 
@@ -194,7 +194,7 @@ def _signal_payload(**kwargs):
 # ── Settings ──────────────────────────────────────────────────────────────────
 
 def validate_settings(settings: dict) -> dict:
-    required = ["pairs"]  # Fiber Scalp v1.0: pair_sl_tp fixed pips used exclusively
+    required = ["pairs"]  # Fiber Scalp v1.1: pair_sl_tp fixed pips used exclusively
     missing  = [k for k in required if k not in settings]
     if missing:
         raise ValueError(f"Missing required settings keys: {missing}")
@@ -866,7 +866,7 @@ def _guard_phase(db, run_id, settings, alert, history, now_sgt, today, demo,
         log.warning(w, extra={"run_id": run_id})
 
     log.info("=== %s | %s | %s SGT ===",
-             settings.get("bot_name", "Fiber Scalp v1.0"), instrument,
+             settings.get("bot_name", "Fiber Scalp v1.1"), instrument,
              now_sgt.strftime("%Y-%m-%d %H:%M"),
              extra={"run_id": run_id, "pair": instrument})
     update_runtime_state(
@@ -1003,6 +1003,10 @@ def _guard_phase(db, run_id, settings, alert, history, now_sgt, today, demo,
 
     if ops.get("last_session") != session:
         if session is not None:
+            # Skip session open alert if this session's threshold is disabled (≥99)
+            _sess_thr = int((settings.get("session_thresholds") or {}).get(
+                get_window_key(session) or "", 0) or 0)
+            _sess_disabled = _sess_thr >= 99
             _lon_s = int(settings.get("london_session_start_hour", 16))
             _lon_e = int(settings.get("london_session_end_hour",   20))
             _us_s  = int(settings.get("us_session_start_hour",     21))
@@ -1015,7 +1019,7 @@ def _guard_phase(db, run_id, settings, alert, history, now_sgt, today, demo,
                 "Tokyo Window":  f"{_tok_s:02d}:00–{_tok_e:02d}:59",
             }
             _sess_hours = _hours_map.get(session, "")
-            if _sess_hours:
+            if _sess_hours and not _sess_disabled:
                 _dp, _dc, _ = daily_totals(history, today, instrument=instrument)
                 _wk   = get_window_key(session)
                 _wcap = get_window_trade_cap(_wk, settings) or 0
