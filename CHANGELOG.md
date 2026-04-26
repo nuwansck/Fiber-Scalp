@@ -1,6 +1,90 @@
 # Fiber Scalp — Changelog
+---
+
+## v1.6.0 — 2026-04-26
+
+### Fix — Weekly/monthly report crash: `KeyError: 'wins'`
+
+**Problem:**
+`send_weekly_report` crashed every Monday with `KeyError: 'wins'`.
+`_session_breakdown()` and `_setup_breakdown()` in `reporting.py` returned dicts
+with only `count`, `win_rate`, `net_pnl` — missing `wins` and `losses` keys.
+`msg_weekly_report()` in `telegram_templates.py` accessed `s['wins']` directly,
+crashing the entire report silently.
+
+**Fix:**
+`_session_breakdown()` and `_setup_breakdown()` in `reporting.py` now include
+`wins` and `losses` in every bucket dict, consistent with `_stats()` format.
+
+**Files changed:** `reporting.py`
 
 ---
+
+### Fix — ORB age wrong for US continuation window 01–03 SGT
+
+**Problem:**
+ORB age calculation in `signals.py` had:
+```python
+if now_sgt.hour == 0 and session_name == "US":
+    open_sgt = open_sgt - timedelta(days=1)
+```
+This only corrected for midnight (00:xx). At 01:00–03:59 SGT (US continuation
+window), `open_sgt` was set to today's 21:00 SGT (in the future), making
+`_orb_age_min = max(0, negative) = 0`. Any ORB break at these hours would be
+scored as *fresh* (+2 pts) when it was actually 4–7 hours old (+0 stale).
+
+Same bug existed in `_get_orb()` cache key calculation.
+
+**Fix:**
+Both occurrences changed to:
+```python
+if session_name == "US" and now_sgt.hour < 4:
+```
+Covers the full US continuation window (00:00–03:59 SGT).
+
+**Files changed:** `signals.py` (2 occurrences)
+
+---
+
+### Fix — Wrong pip_size fallback in `_get_pip_value_usd()` (dormant)
+
+**Problem:**
+`_pip_size = float(pair_cfg.get("pip_size", 0.01))` defaulted to the JPY pip
+size (0.01). If `pip_value_usd` was ever removed from `pair_sl_tp.EUR_USD`,
+the dynamic fallback would calculate ~$850/pip instead of ~$10/pip, producing
+catastrophically oversized positions. Currently dormant (static override set).
+
+**Fix:**
+Default changed to `0.0001` (EUR/USD pip). Fallback return value also corrected
+from `6.67` (JPY ~150 estimate) to `10.0` (EUR/USD standard). Docstring updated
+to describe EUR/USD behaviour, not JPY.
+
+**Files changed:** `signals.py`
+
+---
+
+### Improvement — EMA fresh cross requires ≥1 pip minimum spread
+
+**Why:**
+Several trades (246, 271, 296) fired as "EMA Fresh Cross" with EMA separation
+of 0.3–0.4 pips (< 1 pip). A cross where EMA9 and EMA21 are essentially flat
+is indistinguishable in the log from a high-conviction directional cross, yet
+both scored +3. Near-zero spread crosses have lower predictive value.
+
+**Change:**
+Fresh cross (+3) now requires `abs(ema_fast - ema_slow) >= pip_size` (1 pip)
+at the time of the cross. Below this threshold, the cross is treated as aligned
+(+1) instead and logged as "EMA Weak Cross Up/Down". The EMA spread in pips
+is now included in all signal detail lines for visibility.
+
+**Impact:**
+Score ceiling for a sub-pip cross falls from 6 to 4 (aligned +1, ORB +2,
+CPR +1). These setups can still trade at threshold=4 if ORB and CPR align,
+but the EMA component no longer artificially inflates confidence.
+
+**Files changed:** `signals.py`
+
+
 
 ## v1.0.0 — 2026-04-16
 

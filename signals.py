@@ -79,7 +79,12 @@ def _build_orb_sessions(settings: dict | None = None) -> dict:
 
 
 def score_to_position_usd(score: int, settings: dict | None = None) -> int:
-    """Return the risk-dollar position size for a given score."""
+    """Return the risk-dollar position size for a given score.
+
+    Scores below the signal_threshold never reach trade execution —
+    callers are responsible for that gate. Score=3 returns the partial
+    size as a convenience for signal preview logic, not as a live order.
+    """
     full    = int((settings or {}).get("position_full_usd",    48))
     partial = int((settings or {}).get("position_partial_usd", 30))
     for threshold, size in [(4, full), (2, partial)]:
@@ -111,7 +116,7 @@ def _validate_cpr_levels(levels: dict) -> tuple:
 def _price_dp(pip_size: float) -> int:
     """Decimal places for price formatting based on pip size."""
     if pip_size <= 0.0001:
-        return 5   # 5-decimal pairs (EUR/USD not applininja here)
+        return 5   # 5-decimal pairs: EUR/USD and all non-JPY
     if pip_size <= 0.01:
         return 3   # JPY pairs e.g. EUR/USD (e.g. 152.345) — Ninja
     return 2       # fallback
@@ -197,7 +202,7 @@ class SignalEngine:
             import datetime as _dt_mod
             oh, om = orb_sessions[session_name]
             open_sgt = now_sgt.replace(hour=oh, minute=om, second=0, microsecond=0)
-            if now_sgt.hour == 0 and session_name == "US":
+            if session_name == "US" and now_sgt.hour < 4:
                 open_sgt = open_sgt - _dt_mod.timedelta(days=1)
             _orb_age_min = max(0, int((now_sgt - open_sgt).total_seconds() / 60))
 
@@ -223,36 +228,55 @@ class SignalEngine:
         )
 
         # 5a. EMA crossover ---------------------------------------------------
-        fresh_bull = (ema_fast_now > ema_slow_now) and (ema_fast_prev <= ema_slow_prev)
-        fresh_bear = (ema_fast_now < ema_slow_now) and (ema_fast_prev >= ema_slow_prev)
+        _ema_spread   = abs(ema_fast_now - ema_slow_now)
+        _min_spread   = _pip_size  # require ≥1 pip separation at cross for full +3 score
+        fresh_bull = (ema_fast_now > ema_slow_now) and (ema_fast_prev <= ema_slow_prev) and (_ema_spread >= _min_spread)
+        fresh_bear = (ema_fast_now < ema_slow_now) and (ema_fast_prev >= ema_slow_prev) and (_ema_spread >= _min_spread)
         bull_align = ema_fast_now > ema_slow_now
         bear_align = ema_fast_now < ema_slow_now
 
         cross_tmpl = ("EMA{ef} {verb} EMA{es} | prev(" + fmt + "/" + fmt +
-                      ") -> now(" + fmt + "/" + fmt + ") (+{pts})")
+                      ") -> now(" + fmt + "/" + fmt + ") spread={spread:.1f}pip (+{pts})")
 
         if fresh_bull:
             direction = "BUY";  score += 3;  setup = "EMA Fresh Cross Up"
             reasons.append(cross_tmpl.format(
                 ema_fast_prev, ema_slow_prev, ema_fast_now, ema_slow_now,
-                ef=_ema_fast, es=_ema_slow, verb="fresh cross ABOVE", pts=3,
+                ef=_ema_fast, es=_ema_slow, verb="fresh cross ABOVE",
+                spread=_ema_spread / _pip_size, pts=3,
             ))
         elif fresh_bear:
             direction = "SELL"; score += 3;  setup = "EMA Fresh Cross Down"
             reasons.append(cross_tmpl.format(
                 ema_fast_prev, ema_slow_prev, ema_fast_now, ema_slow_now,
-                ef=_ema_fast, es=_ema_slow, verb="fresh cross BELOW", pts=3,
+                ef=_ema_fast, es=_ema_slow, verb="fresh cross BELOW",
+                spread=_ema_spread / _pip_size, pts=3,
             ))
         elif bull_align:
-            direction = "BUY";  score += 1;  setup = "EMA Trend Up"
-            reasons.append(("EMA{ef}=" + fmt + " above EMA{es}=" + fmt +
-                             " | aligned bull, no fresh cross (+1)").format(
-                ema_fast_now, ema_slow_now, ef=_ema_fast, es=_ema_slow))
+            direction = "BUY";  score += 1
+            # Distinguish weak cross (fired but spread < 1pip) from plain trend
+            if (ema_fast_now > ema_slow_now) and (ema_fast_prev <= ema_slow_prev):
+                setup = "EMA Weak Cross Up"
+                reasons.append(("EMA{ef} cross ABOVE EMA{es} but spread {spread:.1f}pip < 1pip min"
+                                 " | treated as aligned (+1)").format(
+                    ef=_ema_fast, es=_ema_slow, spread=_ema_spread / _pip_size))
+            else:
+                setup = "EMA Trend Up"
+                reasons.append(("EMA{ef}=" + fmt + " above EMA{es}=" + fmt +
+                                 " | aligned bull, no fresh cross (+1)").format(
+                    ema_fast_now, ema_slow_now, ef=_ema_fast, es=_ema_slow))
         elif bear_align:
-            direction = "SELL"; score += 1;  setup = "EMA Trend Down"
-            reasons.append(("EMA{ef}=" + fmt + " below EMA{es}=" + fmt +
-                             " | aligned bear, no fresh cross (+1)").format(
-                ema_fast_now, ema_slow_now, ef=_ema_fast, es=_ema_slow))
+            direction = "SELL"; score += 1
+            if (ema_fast_now < ema_slow_now) and (ema_fast_prev >= ema_slow_prev):
+                setup = "EMA Weak Cross Down"
+                reasons.append(("EMA{ef} cross BELOW EMA{es} but spread {spread:.1f}pip < 1pip min"
+                                 " | treated as aligned (+1)").format(
+                    ef=_ema_fast, es=_ema_slow, spread=_ema_spread / _pip_size))
+            else:
+                setup = "EMA Trend Down"
+                reasons.append(("EMA{ef}=" + fmt + " below EMA{es}=" + fmt +
+                                 " | aligned bear, no fresh cross (+1)").format(
+                    ema_fast_now, ema_slow_now, ef=_ema_fast, es=_ema_slow))
         else:
             reasons.append("No EMA bias (+0)")
             return 0, "NONE", " | ".join(reasons), levels, 0
@@ -502,7 +526,7 @@ class SignalEngine:
         open_h, open_m = _orb_sess[session_name]
         open_sgt = now_sgt.replace(hour=open_h, minute=open_m, second=0, microsecond=0)
 
-        if now_sgt.hour == 0 and session_name == "US":
+        if session_name == "US" and now_sgt.hour < 4:
             open_sgt = open_sgt - _dt_mod.timedelta(days=1)
 
         session_date_str = open_sgt.strftime("%Y-%m-%d")
@@ -547,11 +571,14 @@ class SignalEngine:
 
     def _get_pip_value_usd(self, instrument: str, current_close: float,
                            pair_cfg: dict) -> float:
-        """Return pip_value_usd dynamically for EUR/USD.
+        """Return pip_value_usd for a pair.
 
-        EUR/USD: pip = 0.01 JPY. For 1 standard lot (100,000 units):
-          pip_value_usd = (pip_size / rate) * 100_000
-          e.g. at rate 150.00: (0.01 / 150.00) * 100_000 = $6.667/pip
+        EUR/USD: 1 pip = 0.0001. For 1 standard lot (100,000 units):
+          pip_value_usd = $10.00  (USD-quoted pair — fixed, no rate conversion needed)
+          The static override (pip_value_usd: 10.0 in pair_sl_tp) is preferred.
+
+        Dynamic fallback: pip_val = (pip_size / rate) * 100_000
+          Used if pip_value_usd is absent or 0 in config.
 
         If pair_cfg has a non-zero pip_value_usd, use it as override (manual).
         If zero or absent, calculate dynamically from current_close.
@@ -561,16 +588,16 @@ class SignalEngine:
             return override
 
         # EUR/USD: static $10.00/pip (USD-quoted pair, no rate conversion needed)
-        _pip_size = float(pair_cfg.get("pip_size", 0.01))
+        _pip_size = float(pair_cfg.get("pip_size", 0.0001))
         if current_close and current_close > 0:
             pip_val = (_pip_size / current_close) * 100_000
             log.debug("Dynamic pip_value_usd | %s rate=%.3f pip_val=$%.4f",
                       instrument, current_close, pip_val)
             return round(pip_val, 6)
 
-        # Fallback: use approximate $6.67 (rate ~150)
+        # Fallback: use approximate $10.00 (EUR/USD standard lot at ~1.10)
         log.warning("pip_value_usd fallback used for %s — rate unavailable", instrument)
-        return 6.67
+        return 10.0
 
     # -- EMA helper -----------------------------------------------------------
 
