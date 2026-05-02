@@ -1,13 +1,13 @@
-# Fiber Scalp v1.8 — Settings Reference
+# Fiber Scalp v1.9 — Settings Reference
 
 ## Core risk settings
 
-| Setting | v1.8 value | Meaning |
+| Setting | v1.9 value | Meaning |
 |---|---:|---|
 | `signal_threshold` | `4` | Minimum score required for execution |
-| `score_risk_usd.4` | `25` | Risk amount for score 4/6 trades |
-| `score_risk_usd.5` | `35` | Risk amount for score 5/6 trades |
-| `score_risk_usd.6` | `40` | Risk amount for score 6/6 trades |
+| `score_risk_usd.4` | `30` | Risk amount for score 4/6 trades |
+| `score_risk_usd.5` | `40` | Risk amount for score 5/6 trades |
+| `score_risk_usd.6` | `50` | Risk amount for score 6/6 trades |
 | `max_units` | `20000` | Hard cap on final requested units |
 | `min_trade_units` | `1000` | Reject very small adjusted orders |
 | `margin_safety_factor` | `0.6` | Uses only part of available margin |
@@ -15,10 +15,10 @@
 
 Legacy fields are still present for compatibility:
 
-| Legacy setting | v1.8 fallback |
+| Legacy setting | v1.9 fallback |
 |---|---:|
-| `position_partial_usd` | `25` |
-| `position_full_usd` | `35` |
+| `position_partial_usd` | `30` |
+| `position_full_usd` | `40` |
 
 The bot prefers `score_risk_usd` when present.
 
@@ -40,18 +40,18 @@ The bot prefers `score_risk_usd` when present.
 
 Telegram should send actionable items only: score 4+ signals, opened/closed trades, spread/news blocks, order failures, and scheduled reports.
 
-## Recommended v1.8 JSON block
+## Recommended v1.9 JSON block
 
 ```json
 {
   "signal_threshold": 4,
   "score_risk_usd": {
-    "4": 25,
-    "5": 35,
-    "6": 40
+    "4": 30,
+    "5": 40,
+    "6": 50
   },
-  "position_partial_usd": 25,
-  "position_full_usd": 35,
+  "position_partial_usd": 30,
+  "position_full_usd": 40,
   "max_units": 20000,
   "pair_sl_tp": {
     "EUR_USD": {
@@ -65,6 +65,6 @@ Telegram should send actionable items only: score 4+ signals, opened/closed trad
 }
 ```
 
-## Why v1.8 changed risk sizing
+## Why v1.9 changed risk sizing
 
-Previous sizing could request around 25k–33k units, then rely on the margin guard to scale down. v1.8 makes the first requested size calmer and more realistic for a small demo account, while keeping the same SL/TP structure that produced a positive early profit factor.
+Previous sizing could request around 25k–33k units, then rely on the margin guard to scale down. v1.9 makes the first requested size controlled and more realistic for a small demo account, while keeping the same SL/TP structure that produced a positive early profit factor.

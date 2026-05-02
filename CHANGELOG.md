@@ -1,12 +1,12 @@
 # Changelog
 
-## v1.8.0 — 2026-05-02
+## v1.9.0 — 2026-05-02
 
 ### Changed
 - Added score-based risk sizing using `score_risk_usd`:
-  - Score 4 → $25 risk
-  - Score 5 → $35 risk
-  - Score 6 → $40 risk
+  - Score 4 → $30 risk
+  - Score 5 → $40 risk
+  - Score 6 → $50 risk
 - Added hard `max_units = 20000` cap in the margin guard.
 - Updated startup Telegram template to show the new risk ladder.
 - Updated README, SETTINGS, and Confluence-ready documentation.

@@ -81,8 +81,8 @@ def _build_orb_sessions(settings: dict | None = None) -> dict:
 def score_to_position_usd(score: int, settings: dict | None = None) -> int:
     """Return the risk-dollar position size for a given score.
 
-    v1.8 supports explicit score-based risk sizing:
-      score 4 -> $25, score 5 -> $35, score 6 -> $40 by default.
+    v1.9 supports explicit score-based risk sizing:
+      score 4 -> $30, score 5 -> $40, score 6 -> $50 by default.
     Legacy position_full_usd / position_partial_usd fields are kept as
     fallback so older settings files still work.
     """
@@ -96,10 +96,10 @@ def score_to_position_usd(score: int, settings: dict | None = None) -> int:
             except (TypeError, ValueError):
                 break
 
-    full    = int(s.get("position_full_usd",    35))
-    partial = int(s.get("position_partial_usd", 25))
+    full    = int(s.get("position_full_usd",    40))
+    partial = int(s.get("position_partial_usd", 30))
     if score >= 6:
-        return max(int(s.get("score_6_risk_usd", 40)), 0)
+        return max(int(s.get("score_6_risk_usd", 50)), 0)
     if score >= 5:
         return max(full, 0)
     if score >= 4:

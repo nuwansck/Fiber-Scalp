@@ -200,10 +200,10 @@ def validate_settings(settings: dict) -> dict:
         raise ValueError(f"Missing required settings keys: {missing}")
 
     settings.setdefault("signal_threshold",           4)
-    # v1.8 calmer score-based risk sizing. Legacy fields kept as fallback.
-    settings.setdefault("position_full_usd",          35)  # fallback for score 5
-    settings.setdefault("position_partial_usd",       25)  # fallback for score 4
-    settings.setdefault("score_risk_usd",             {"4": 25, "5": 35, "6": 40})
+    # v1.9 updated score-based risk sizing. Legacy fields kept as fallback.
+    settings.setdefault("position_full_usd",          40)  # fallback for score 5
+    settings.setdefault("position_partial_usd",       30)  # fallback for score 4
+    settings.setdefault("score_risk_usd",             {"4": 30, "5": 40, "6": 50})
     settings.setdefault("max_units",                  20000)
     settings.setdefault("account_balance_override",   0)
     settings.setdefault("enabled",                    True)

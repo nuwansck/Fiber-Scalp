@@ -1,14 +1,14 @@
-# Fiber Scalp v1.8 — Technical Specification & Operations Wiki
+# Fiber Scalp v1.9 — Technical Specification & Operations Wiki
 
-**Bot:** Fiber Scalp v1.8  
+**Bot:** Fiber Scalp v1.9  
 **Pair:** EUR/USD  
 **Broker:** OANDA  
 **Mode:** Demo by default  
-**Primary release goal:** calmer risk sizing without changing the core strategy.
+**Primary release goal:** updated controlled risk sizing without changing the core strategy.
 
 ## 1. Executive Summary
 
-Fiber Scalp v1.8 keeps the existing M5 EMA + ORB + CPR signal engine and the EUR/USD 18-pip SL / 30-pip TP model. The main improvement is risk control: score 4, 5, and 6 signals now have separate risk amounts, and the bot has a hard `max_units` cap.
+Fiber Scalp v1.9 keeps the existing M5 EMA + ORB + CPR signal engine and the EUR/USD 18-pip SL / 30-pip TP model. The main improvement is the updated risk ladder: score 4, 5, and 6 signals now use $30/$40/$50 risk amounts, while the hard `max_units` cap remains in place.
 
 ## 2. Architecture
 
@@ -37,13 +37,13 @@ Railway Scheduler
 | Reward:risk | 1.67 |
 | Telegram watching alert minimum | 4/6 |
 
-## 4. v1.8 Risk Model
+## 4. v1.9 Risk Model
 
 | Score | Risk amount | Approx units with 18-pip SL | Notes |
 |---:|---:|---:|---|
-| 4/6 | $25 | ~13,888 | Normal valid setup |
-| 5/6 | $35 | ~19,444 | Higher-quality setup |
-| 6/6 | $40 | capped by `max_units` | Best setup only |
+| 4/6 | $30 | ~16,667 | Normal valid setup |
+| 5/6 | $40 | capped by `max_units` | Higher-quality setup |
+| 6/6 | $50 | capped by `max_units` | Best setup only |
 
 Hard cap:
 
@@ -70,7 +70,7 @@ Telegram alerts are intentionally filtered:
 Startup template now displays:
 
 ```text
-Risk: $25 (score 4) | $35 (score 5) | $40 (score 6)
+Risk: $30 (score 4) | $40 (score 5) | $50 (score 6)
 ```
 
 ## 6. Operational Notes
@@ -84,6 +84,6 @@ Risk: $25 (score 4) | $35 (score 5) | $40 (score 6)
 
 | Version | Date | Change |
 |---|---|---|
-| v1.8 | May 02 2026 | Added score-based risk sizing, `max_units=20000`, and updated Telegram/docs. |
+| v1.9 | May 02 2026 | Added score-based risk sizing, `max_units=20000`, and updated Telegram/docs. |
 | v1.7 | May 02 2026 | Suppressed Telegram WATCHING alerts below score 4. |
 | v1.6 | Apr 2026 | Fixed-pip SL/TP and margin guard release. |

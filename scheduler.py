@@ -295,9 +295,9 @@ def main():
                 tg_min_score=int(settings.get('telegram_min_score_alert', 4)),
                 h1_filter_enabled=bool(settings.get('h1_filter_enabled', True)),
                 h1_filter_mode=settings.get('h1_filter_mode', 'soft'),
-                position_full_usd=int((settings.get('score_risk_usd') or {}).get('5', settings.get('position_full_usd', 35))),
-                position_partial_usd=int((settings.get('score_risk_usd') or {}).get('4', settings.get('position_partial_usd', 25))),
-                score_6_risk_usd=int((settings.get('score_risk_usd') or {}).get('6', 40)),
+                position_full_usd=int((settings.get('score_risk_usd') or {}).get('5', settings.get('position_full_usd', 40))),
+                position_partial_usd=int((settings.get('score_risk_usd') or {}).get('4', settings.get('position_partial_usd', 30))),
+                score_6_risk_usd=int((settings.get('score_risk_usd') or {}).get('6', 50)),
                 session_thresholds=settings.get('session_thresholds', {}),
             ))
             _state["last_startup_ts"] = _now_ts
