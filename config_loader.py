@@ -117,7 +117,7 @@ def load_settings() -> dict:
 
     original_keys = set(settings.keys())
 
-    settings.setdefault('bot_name', 'Fiber Scalp v1.9')
+    settings.setdefault('bot_name', 'Fiber Scalp v2.0')
     settings.setdefault('enabled', True)
     settings.setdefault('cycle_minutes', 5)
     settings.setdefault('db_retention_days', 90)
@@ -140,7 +140,7 @@ def load_settings() -> dict:
     settings.setdefault('min_rr_ratio',              1.6)   # 1.70x RR for EUR/USD
     # H1 trend filter
     settings.setdefault('h1_filter_enabled',        True)
-    settings.setdefault('h1_filter_mode',           'soft')  # 'soft'=observe only | 'strict'=block
+    settings.setdefault('h1_filter_mode',           'score_aware')  # score_aware: score 4 needs alignment; score 5/6 allow neutral but block opposite
     settings.setdefault('h1_ema_period',            21)
     settings.setdefault('ema_fast_period',           9)
     settings.setdefault('ema_slow_period',           21)

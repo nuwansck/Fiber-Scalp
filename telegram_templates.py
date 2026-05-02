@@ -1,4 +1,4 @@
-"""Telegram message templates for Fiber Scalp v1.9
+"""Telegram message templates for Fiber Scalp v2.0
 AtomicFX-style: clean, state-change only, minimal noise.
 """
 from __future__ import annotations
@@ -36,7 +36,7 @@ def _split_banner(banner: str) -> tuple[str, str]:
     """Extract pair from banner.
     Handles both:
       '🇬🇧 LONDON [EUR/USD]'  → ('🇬🇧 LONDON [EUR/USD]', 'EUR/USD')
-      'Fiber Scalp v1.9 | EUR/USD' → ('Fiber Scalp v1.9', 'EUR/USD')
+      'Fiber Scalp v2.0 | EUR/USD' → ('Fiber Scalp v2.0', 'EUR/USD')
     """
     if "[" in banner and "]" in banner:
         pair = banner[banner.index("[")+1 : banner.index("]")]
@@ -63,7 +63,7 @@ def msg_signal_update(
     reason="", mandatory_checks=None, quality_checks=None,
     execution_checks=None, cycle_minutes=5, signal_threshold=4,
     setup="", orb_age_min=None, orb_formed=False,
-    h1_trend="UNKNOWN", h1_aligned=True, h1_filter_mode="soft",
+    h1_trend="UNKNOWN", h1_aligned=True, h1_relation=None, h1_filter_mode="score_aware",
 ) -> str:
     bot, pair = _split_banner(banner)
     s_str = f"{score}/6"
@@ -72,13 +72,15 @@ def msg_signal_update(
     di    = _dir_icon(direction)
     nline = f"⚠️  News penalty: {news_penalty:+d}\n" if news_penalty else ""
 
-    # H1 trend line — shows on all cards when filter is enabled
+    # H1 trend line — shows relation used by the v2.0 score-aware filter
     def _h1_line():
-        if h1_trend in ("UNKNOWN", "DISABLED"): return ""
-        icon   = "🟢" if h1_trend == "BULLISH" else ("🔴" if h1_trend == "BEARISH" else "⬜")
-        align  = "aligned" if h1_aligned else "counter-trend ⚠️"
-        mode   = " [soft]" if h1_filter_mode == "soft" else ""
-        return f"H1: {icon} {h1_trend}  ({align}){mode}\n"
+        rel = h1_relation or ("aligned" if h1_aligned else "opposite")
+        if h1_trend in ("UNKNOWN", "DISABLED") and rel == "neutral":
+            return ""
+        icon = "🟢" if rel == "aligned" else ("🔴" if rel == "opposite" else "⬜")
+        label = "aligned" if rel == "aligned" else ("counter-trend ⚠️" if rel == "opposite" else "neutral")
+        mode = " [score-aware]" if h1_filter_mode in ("score_aware", "tiered") else (" [strict]" if h1_filter_mode == "strict" else " [soft]")
+        return f"H1: {icon} {h1_trend}  ({label}){mode}\n"
 
     if decision == "WATCHING":
         orb = ""
@@ -133,7 +135,7 @@ def msg_trade_opened(
     news_penalty=0, raw_score=None, free_margin=None,
     required_margin=None, margin_mode="NORMAL", margin_usage_pct=None,
     price_dp=5, tp2_rr=3.0,
-    h1_trend="UNKNOWN", h1_aligned=True,
+    h1_trend="UNKNOWN", h1_aligned=True, h1_relation=None,
 ) -> str:
     bot, pair = _split_banner(banner)
     mode = "DEMO" if demo else "LIVE"
@@ -164,7 +166,7 @@ def msg_trade_opened(
         f"{_DIV}\n"
         f"Setup:   {setup}\n"
         f"Score:   {s_str}  |  Spread: {spread_pips}p\n"
-        + (f"H1:      {'🟢' if h1_aligned else '🔴'} {h1_trend}  ({'aligned' if h1_aligned else 'counter-trend ⚠️'})\n"
+        + (f"H1:      {'🟢' if (h1_relation or ('aligned' if h1_aligned else 'opposite')) == 'aligned' else ('🔴' if (h1_relation or ('aligned' if h1_aligned else 'opposite')) == 'opposite' else '⬜')} {h1_trend}  ({'aligned' if (h1_relation or ('aligned' if h1_aligned else 'opposite')) == 'aligned' else ('counter-trend ⚠️' if (h1_relation or ('aligned' if h1_aligned else 'opposite')) == 'opposite' else 'neutral')})\n"
            if h1_trend not in ('UNKNOWN', 'DISABLED') else "")
         + f"Units:   {units_fmt}  |  Risk: {_pos_label(position_usd)}  |  Mode: {mode}"
     )
@@ -391,14 +393,20 @@ def msg_startup(
     tokyo_start=8, tokyo_end=15, london_start=16, london_end=20,
     us_start=21, us_end=23, max_total_open=1,
     position_full_usd=40, position_partial_usd=30, score_6_risk_usd=50, session_thresholds=None,
-    tg_min_score=4, h1_filter_enabled=True, h1_filter_mode="soft",
+    tg_min_score=4, h1_filter_enabled=True, h1_filter_mode="score_aware",
 ) -> str:
     thr     = session_thresholds or {}
     lon_thr = thr.get("London", min_score)
     us_thr  = thr.get("US",     min_score)
     tok_thr = thr.get("Tokyo",  min_score + 1)
-    h1_line = (f"H1 filter: {'✅' if h1_filter_enabled else '⬜'} "
-               f"{h1_filter_mode.upper() if h1_filter_enabled else 'OFF'}\n")
+    if not h1_filter_enabled:
+        h1_line = "H1 filter: ⬜ OFF\n"
+    elif h1_filter_mode in ("score_aware", "tiered"):
+        h1_line = ("H1 filter: ✅ SCORE-AWARE\n"
+                   "  • Score 4: H1 aligned required\n"
+                   "  • Score 5/6: neutral allowed, opposite blocked\n")
+    else:
+        h1_line = f"H1 filter: ✅ {h1_filter_mode.upper()}\n"
     return (
         f"🚀 {version} started\n{_DIV}\n"
         f"Mode:      {mode}  |  Balance: ${balance:,.2f}\n"

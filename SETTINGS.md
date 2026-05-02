@@ -1,8 +1,8 @@
-# Fiber Scalp v1.9 — Settings Reference
+# Fiber Scalp v2.0 — Settings Reference
 
 ## Core risk settings
 
-| Setting | v1.9 value | Meaning |
+| Setting | v2.0 value | Meaning |
 |---|---:|---|
 | `signal_threshold` | `4` | Minimum score required for execution |
 | `score_risk_usd.4` | `30` | Risk amount for score 4/6 trades |
@@ -15,12 +15,28 @@
 
 Legacy fields are still present for compatibility:
 
-| Legacy setting | v1.9 fallback |
+| Legacy setting | v2.0 fallback |
 |---|---:|
 | `position_partial_usd` | `30` |
 | `position_full_usd` | `40` |
 
 The bot prefers `score_risk_usd` when present.
+
+## H1 score-aware filter
+
+| Setting | v2.0 value | Meaning |
+|---|---:|---|
+| `h1_filter_enabled` | `true` | Enables H1 trend filter |
+| `h1_filter_mode` | `score_aware` | Uses score-aware H1 gating |
+| `h1_ema_period` | `21` | H1 EMA period used to classify trend |
+
+Execution rules:
+
+| Score | H1 aligned | H1 neutral / unknown / flat | H1 opposite |
+|---:|---|---|---|
+| 4/6 | Allow | Skip | Skip |
+| 5/6 | Allow | Allow | Skip |
+| 6/6 | Allow | Allow | Skip |
 
 ## SL / TP
 
@@ -38,9 +54,9 @@ The bot prefers `score_risk_usd` when present.
 | `telegram_min_score_alert` | `4` | Suppress score 0–3 WATCHING alerts |
 | `telegram_show_margin` | `true` | Notify when margin guard adjusts units |
 
-Telegram should send actionable items only: score 4+ signals, opened/closed trades, spread/news blocks, order failures, and scheduled reports.
+Telegram should send actionable items only: score 4+ signals, H1 blocks, opened/closed trades, spread/news blocks, order failures, and scheduled reports.
 
-## Recommended v1.9 JSON block
+## Recommended v2.0 JSON block
 
 ```json
 {
@@ -53,6 +69,9 @@ Telegram should send actionable items only: score 4+ signals, opened/closed trad
   "position_partial_usd": 30,
   "position_full_usd": 40,
   "max_units": 20000,
+  "h1_filter_enabled": true,
+  "h1_filter_mode": "score_aware",
+  "h1_ema_period": 21,
   "pair_sl_tp": {
     "EUR_USD": {
       "sl_pips": 18,
@@ -65,6 +84,6 @@ Telegram should send actionable items only: score 4+ signals, opened/closed trad
 }
 ```
 
-## Why v1.9 changed risk sizing
+## Why v2.0 changed H1 handling
 
-Previous sizing could request around 25k–33k units, then rely on the margin guard to scale down. v1.9 makes the first requested size controlled and more realistic for a small demo account, while keeping the same SL/TP structure that produced a positive early profit factor.
+Score 4 is the weakest allowed entry score, so it now requires H1 trend confirmation. Score 5/6 setups are stronger, so neutral H1 is allowed, but clear opposite H1 is blocked to avoid counter-trend trades.

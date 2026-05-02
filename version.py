@@ -1,2 +1,2 @@
-VERSION     = "1.9.0"
-DESCRIPTION = "Fiber Scalp v1.9 — updated score-based risk ladder ($30/$40/$50) with max_units cap"
+VERSION     = "2.0.0"
+DESCRIPTION = "Fiber Scalp v2.0 — score-aware H1 filter with $30/$40/$50 risk ladder"

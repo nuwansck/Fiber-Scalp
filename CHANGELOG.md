@@ -1,5 +1,25 @@
 # Changelog
 
+## v2.0.0 — 2026-05-02
+
+### Added
+- Added score-aware H1 filter mode: `h1_filter_mode = "score_aware"`.
+- Added H1 relation classification in signals: `aligned`, `neutral`, or `opposite`.
+- Added score-aware H1 blocks before order placement:
+  - Score 4 requires H1 alignment.
+  - Score 5/6 allows neutral H1.
+  - Score 5/6 blocks opposite H1.
+- Updated Telegram signal cards to show H1 relation and score-aware mode.
+- Updated Telegram startup template to explain the H1 policy.
+- Updated README, SETTINGS, and Confluence-ready documentation.
+
+### Unchanged
+- Risk ladder remains score 4/5/6 = $30/$40/$50.
+- `max_units` remains `20000`.
+- EUR/USD SL/TP remains 18 pips / 30 pips.
+- Minimum execution score remains 4/6.
+- Telegram WATCHING alert threshold remains score ≥4.
+
 ## v1.9.0 — 2026-05-02
 
 ### Changed

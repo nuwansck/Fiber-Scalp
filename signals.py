@@ -81,7 +81,7 @@ def _build_orb_sessions(settings: dict | None = None) -> dict:
 def score_to_position_usd(score: int, settings: dict | None = None) -> int:
     """Return the risk-dollar position size for a given score.
 
-    v1.9 supports explicit score-based risk sizing:
+    v2.0 supports explicit score-based risk sizing:
       score 4 -> $30, score 5 -> $40, score 6 -> $50 by default.
     Legacy position_full_usd / position_partial_usd fields are kept as
     fallback so older settings files still work.
@@ -411,12 +411,15 @@ class SignalEngine:
         else:
             _h1 = {"h1_trend": "DISABLED", "h1_ema_now": None, "h1_price": None}
 
-        # H1 alignment: BUY needs BULLISH, SELL needs BEARISH
-        _h1_aligned = (
-            (_h1["h1_trend"] == "BULLISH" and direction == "BUY") or
-            (_h1["h1_trend"] == "BEARISH" and direction == "SELL") or
-            _h1["h1_trend"] in ("UNKNOWN", "DISABLED", "FLAT")
-        )
+        # H1 relationship: BUY needs BULLISH, SELL needs BEARISH.
+        # Neutral/unknown is handled by the v2.0 score-aware filter in bot.py.
+        if _h1["h1_trend"] in ("UNKNOWN", "DISABLED", "FLAT"):
+            _h1_relation = "neutral"
+        elif (_h1["h1_trend"] == "BULLISH" and direction == "BUY") or (_h1["h1_trend"] == "BEARISH" and direction == "SELL"):
+            _h1_relation = "aligned"
+        else:
+            _h1_relation = "opposite"
+        _h1_aligned = (_h1_relation == "aligned")
 
         levels["score"]        = score
         levels["position_usd"] = position_usd
@@ -436,6 +439,7 @@ class SignalEngine:
         levels["h1_trend"]         = _h1["h1_trend"]
         levels["h1_ema_now"]       = _h1["h1_ema_now"]
         levels["h1_aligned"]       = _h1_aligned
+        levels["h1_relation"]      = _h1_relation
 
         _tp_label = "{:.1f}x RR".format(rr_ratio)
         sl_fmt = "{{:.{}f}}".format(_dp + 2)

@@ -200,7 +200,7 @@ def validate_settings(settings: dict) -> dict:
         raise ValueError(f"Missing required settings keys: {missing}")
 
     settings.setdefault("signal_threshold",           4)
-    # v1.9 updated score-based risk sizing. Legacy fields kept as fallback.
+    # v2.0 score-based risk sizing. Legacy fields kept as fallback.
     settings.setdefault("position_full_usd",          40)  # fallback for score 5
     settings.setdefault("position_partial_usd",       30)  # fallback for score 4
     settings.setdefault("score_risk_usd",             {"4": 30, "5": 40, "6": 50})
@@ -228,6 +228,9 @@ def validate_settings(settings: dict) -> dict:
     settings.setdefault("orb_fresh_minutes",          60)
     settings.setdefault("orb_aging_minutes",          120)
     settings.setdefault("min_rr_ratio",               1.6)
+    settings.setdefault("h1_filter_enabled",        True)
+    settings.setdefault("h1_filter_mode",           "score_aware")
+    settings.setdefault("h1_ema_period",            21)
     settings.setdefault("rr_ratio",                   1.67)  # fallback only — pair_sl_tp always used
     settings.setdefault("ema_fast_period",            9)
     settings.setdefault("ema_slow_period",            21)
@@ -1338,7 +1341,8 @@ def _signal_phase(db, run_id, settings, alert, trader, history,
             orb_formed=levels.get("orb_formed", False),
             h1_trend=levels.get("h1_trend", "UNKNOWN"),
             h1_aligned=levels.get("h1_aligned", True),
-            h1_filter_mode=settings.get("h1_filter_mode", "soft"),
+            h1_relation=levels.get("h1_relation"),
+            h1_filter_mode=settings.get("h1_filter_mode", "score_aware"),
             **payload,
         )
         if msg != sig_cache.get("last_signal_msg", ""):
@@ -1401,21 +1405,46 @@ def _signal_phase(db, run_id, settings, alert, trader, history,
 
     signal_blockers = list(levels.get("signal_blockers") or [])
 
-    # H1 strict block — only when h1_filter_mode = "strict"
-    _h1_mode    = settings.get("h1_filter_mode", "soft")
+    # H1 score-aware filter — v2.0
+    # Rules:
+    #   Score 4 needs H1 alignment. Neutral/unknown H1 is not enough for score 4.
+    #   Score 5/6 may pass with neutral H1, but opposite H1 is blocked.
+    #   Strict mode remains available and blocks any non-aligned non-neutral H1.
+    _h1_mode    = settings.get("h1_filter_mode", "score_aware")
     _h1_enabled = bool(settings.get("h1_filter_enabled", True))
     _h1_trend   = levels.get("h1_trend", "UNKNOWN")
-    _h1_aligned = levels.get("h1_aligned", True)
-    if (_h1_enabled and _h1_mode == "strict" and
-            not _h1_aligned and _h1_trend not in ("UNKNOWN", "DISABLED", "FLAT")):
-        _h1_dir    = "bullish" if direction == "BUY" else "bearish"
-        _h1_reason = f"H1 {_h1_trend} — no {direction} until H1 turns {_h1_dir}"
+
+    def _h1_relation_for(direction_, trend_):
+        if trend_ in ("UNKNOWN", "DISABLED", "FLAT", None, ""):
+            return "neutral"
+        if (trend_ == "BULLISH" and direction_ == "BUY") or (trend_ == "BEARISH" and direction_ == "SELL"):
+            return "aligned"
+        return "opposite"
+
+    _h1_relation = levels.get("h1_relation") or _h1_relation_for(direction, _h1_trend)
+    levels["h1_relation"] = _h1_relation
+    _h1_block = False
+    _h1_reason = ""
+    if _h1_enabled:
+        if _h1_mode in ("score_aware", "tiered"):
+            if score == 4 and _h1_relation != "aligned":
+                _h1_block = True
+                _h1_reason = f"H1 {_h1_trend} is {_h1_relation}; score 4 needs H1 alignment"
+            elif score >= 5 and _h1_relation == "opposite":
+                _h1_block = True
+                _h1_reason = f"H1 {_h1_trend} is opposite to {direction}; score 5/6 cannot trade counter-trend"
+        elif _h1_mode == "strict" and _h1_relation != "aligned":
+            _h1_block = True
+            _h1_reason = f"H1 {_h1_trend} is {_h1_relation}; strict mode requires H1 alignment"
+
+    if _h1_block:
         _send_signal_update("BLOCKED", _h1_reason)
         update_runtime_state(
             last_cycle_finished=now_sgt.strftime("%Y-%m-%d %H:%M:%S"),
             status="SKIPPED_H1_BLOCK", score=score, direction=direction)
         db.finish_cycle(run_id, status="SKIPPED",
                         summary={"stage": "h1_filter", "reason": _h1_reason,
+                                 "h1_trend": _h1_trend, "h1_relation": _h1_relation,
                                  "instrument": instrument})
         return None
 
@@ -1719,6 +1748,9 @@ def _execution_phase(db, run_id, settings, alert, trader, history,
                 if float(margin_info.get("free_margin", 0)) > 0 else None),
             price_dp=dp,
             tp2_rr=float(settings.get("tp2_rr_reference", 3.0)),
+            h1_trend=levels.get("h1_trend", "UNKNOWN"),
+            h1_aligned=levels.get("h1_aligned", True),
+            h1_relation=levels.get("h1_relation"),
         ))
         log.info("[%s] Trade placed: %s", instrument, record,
                  extra={"run_id": run_id})
