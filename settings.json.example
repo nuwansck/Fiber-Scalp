@@ -1,5 +1,5 @@
 {
-  "bot_name": "Fiber Scalp v2.0",
+  "bot_name": "Fiber Scalp v2.1",
   "demo_mode": true,
   "enabled": true,
   "_comment_pairs": "Per-pair settings override any matching global key for that pair's cycle.",
@@ -29,7 +29,7 @@
   "telegram_show_margin": true,
   "max_concurrent_trades": 1,
   "max_trades_day": 20,
-  "max_losing_trades_day": 8,
+  "max_losing_trades_day": 3,
   "max_trades_london": 10,
   "max_trades_us": 10,
   "max_losing_trades_session": 4,
@@ -111,5 +111,6 @@
     "5": 40,
     "6": 50
   },
-  "max_units": 20000
+  "max_units": 20000,
+  "daily_risk_cap_usd": 120
 }

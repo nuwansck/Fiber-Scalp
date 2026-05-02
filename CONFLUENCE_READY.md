@@ -1,6 +1,6 @@
-# Fiber Scalp v2.0 — Technical Specification & Operations Wiki
+# Fiber Scalp v2.1 — Technical Specification & Operations Wiki
 
-**Bot:** Fiber Scalp v2.0  
+**Bot:** Fiber Scalp v2.1  
 **Pair:** EUR/USD  
 **Broker:** OANDA  
 **Mode:** Demo by default  
@@ -8,7 +8,7 @@
 
 ## 1. Executive Summary
 
-Fiber Scalp v2.0 keeps the existing M5 EMA + ORB + CPR signal engine and the EUR/USD 18-pip SL / 30-pip TP model. The main improvement is score-aware H1 gating: score 4 trades now require H1 alignment, while score 5/6 trades may pass with neutral H1 but are blocked when H1 is clearly opposite.
+Fiber Scalp v2.1 keeps the existing M5 EMA + ORB + CPR signal engine and the EUR/USD 18-pip SL / 30-pip TP model. The main improvement is score-aware H1 gating: score 4 trades now require H1 alignment, while score 5/6 trades may pass with neutral H1 but are blocked when H1 is clearly opposite.
 
 ## 2. Architecture
 
@@ -110,3 +110,13 @@ Signal cards display H1 relation as `aligned`, `neutral`, or `counter-trend`.
 | v1.9 | May 02 2026 | Added score-based risk sizing, `max_units=20000`, and updated Telegram/docs. |
 | v1.7 | May 02 2026 | Suppressed Telegram WATCHING alerts below score 4. |
 | v1.6 | Apr 2026 | Fixed-pip SL/TP and margin guard release. |
+
+
+## v2.1 Daily Safety Controls
+
+| Control | v2.1 value | Purpose |
+|---|---:|---|
+| `max_losing_trades_day` | `3` | Stop new entries after 3 losing trades in the trading day. |
+| `daily_risk_cap_usd` | `$120` | Stop new entries when realized + open P/L reaches `-$120` for the day. |
+
+Telegram startup now shows: `Day reset: 08:00 SGT | Loss cap: 3/day | Risk cap: $120/day`.

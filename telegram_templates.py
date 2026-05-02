@@ -1,4 +1,4 @@
-"""Telegram message templates for Fiber Scalp v2.0
+"""Telegram message templates for Fiber Scalp v2.1
 AtomicFX-style: clean, state-change only, minimal noise.
 """
 from __future__ import annotations
@@ -36,7 +36,7 @@ def _split_banner(banner: str) -> tuple[str, str]:
     """Extract pair from banner.
     Handles both:
       '🇬🇧 LONDON [EUR/USD]'  → ('🇬🇧 LONDON [EUR/USD]', 'EUR/USD')
-      'Fiber Scalp v2.0 | EUR/USD' → ('Fiber Scalp v2.0', 'EUR/USD')
+      'Fiber Scalp v2.1 | EUR/USD' → ('Fiber Scalp v2.1', 'EUR/USD')
     """
     if "[" in banner and "]" in banner:
         pair = banner[banner.index("[")+1 : banner.index("]")]
@@ -388,7 +388,7 @@ def msg_friday_cutoff(cutoff_hour_sgt) -> str:
 def msg_startup(
     version, mode, balance, min_score, cycle_minutes=5,
     max_trades_london=10, max_trades_us=10, max_trades_tokyo=10,
-    max_losing_day=8, trading_day_start_hour=8,
+    max_losing_day=3, daily_risk_cap_usd=120, trading_day_start_hour=8,
     us_early_end=3, dead_zone_start=4, dead_zone_end=7,
     tokyo_start=8, tokyo_end=15, london_start=16, london_end=20,
     us_start=21, us_end=23, max_total_open=1,
@@ -427,7 +427,7 @@ def msg_startup(
         + (f"  🚫 US cont.    disabled\n" if us_early_end >= 99 else
            f"  🗽 00:00–{us_early_end:02d}:59  US cont.   cap {max_trades_us}  score≥{us_thr}\n")
         + f"{_DIV}\n"
-        + f"Day reset: {trading_day_start_hour:02d}:00 SGT  |  Loss cap: {max_losing_day}/day\n"
+        + f"Day reset: {trading_day_start_hour:02d}:00 SGT  |  Loss cap: {max_losing_day}/day  |  Risk cap: ${daily_risk_cap_usd:.0f}/day\n"
         + f"Global cap: {max_total_open} open trades"
     )
 

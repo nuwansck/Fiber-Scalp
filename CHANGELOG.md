@@ -1,6 +1,6 @@
 # Changelog
 
-## v2.0.0 — 2026-05-02
+## v2.1.0 — 2026-05-02
 
 ### Added
 - Added score-aware H1 filter mode: `h1_filter_mode = "score_aware"`.

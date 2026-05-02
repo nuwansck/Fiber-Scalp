@@ -241,7 +241,8 @@ def validate_settings(settings: dict) -> dict:
     settings.setdefault("m5_candle_count",            40)
     settings.setdefault("spread_limits",              {"London": 5, "US": 5})
     settings.setdefault("max_trades_day",             20)
-    settings.setdefault("max_losing_trades_day",      8)
+    settings.setdefault("max_losing_trades_day",      3)
+    settings.setdefault("daily_risk_cap_usd",          120)
     settings.setdefault("max_trades_london",          10)
     settings.setdefault("max_trades_us",              10)
     # session window hours
@@ -958,7 +959,7 @@ def _guard_phase(db, run_id, settings, alert, history, now_sgt, today, demo,
                 cooldown_until_sgt=cooldown_started_until.strftime("%H:%M"),
                 session_name=_cd_sess,
                 day_losses=_cd_losses,
-                day_limit=int(settings.get("max_losing_trades_day", 8)),
+                day_limit=int(settings.get("max_losing_trades_day", 3)),
             ), instrument)
         log_event("COOLDOWN_STARTED",
                   f"[{instrument}] Cooldown until "
@@ -1083,7 +1084,7 @@ def _guard_phase(db, run_id, settings, alert, history, now_sgt, today, demo,
     # ── Early cap guards (no OANDA call needed) ────────────────────────────
     _dp_pre, _dt_pre, _dl_pre = daily_totals(history, today, instrument=instrument)
 
-    _max_day_losses = int(settings.get("max_losing_trades_day", 8))
+    _max_day_losses = int(settings.get("max_losing_trades_day", 3))
     if _max_day_losses > 0 and _dl_pre >= _max_day_losses:
         msg = (f"🛑 [{instrument}] Daily loss cap ({_dl_pre}/{_max_day_losses}) — "
                f"no new entries today.")
@@ -1094,6 +1095,19 @@ def _guard_phase(db, run_id, settings, alert, history, now_sgt, today, demo,
         db.finish_cycle(run_id, status="SKIPPED",
                         summary={"stage": "daily_loss_cap", "instrument": instrument,
                                  "losses": _dl_pre, "cap": _max_day_losses})
+        return None
+
+    _daily_risk_cap = float(settings.get("daily_risk_cap_usd", 120) or 0)
+    if _daily_risk_cap > 0 and _dp_pre <= -abs(_daily_risk_cap):
+        msg = (f"🛑 [{instrument}] Daily risk cap (${abs(_dp_pre):.2f}/${_daily_risk_cap:.2f}) — "
+               f"no new entries today.")
+        send_once_per_state(alert, ops, "ops_state",
+                            f"day_risk_cap:{today}:{round(_dp_pre, 2)}", msg, instrument)
+        update_runtime_state(last_cycle_finished=now_sgt.strftime("%Y-%m-%d %H:%M:%S"),
+                             status="SKIPPED_DAILY_RISK_CAP")
+        db.finish_cycle(run_id, status="SKIPPED",
+                        summary={"stage": "daily_risk_cap", "instrument": instrument,
+                                 "daily_pnl": _dp_pre, "cap_usd": _daily_risk_cap})
         return None
 
     _max_day_trades = int(settings.get("max_trades_day", 20))

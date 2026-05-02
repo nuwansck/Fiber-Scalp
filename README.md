@@ -1,6 +1,6 @@
-# Fiber Scalp v2.0 — EUR/USD M5 Scalping Bot
+# Fiber Scalp v2.1 — EUR/USD M5 Scalping Bot
 
-**Fiber Scalp v2.0** adds the new **score-aware H1 filter** on top of the v1.9 controlled-risk model.
+**Fiber Scalp v2.1** adds the new **score-aware H1 filter** on top of the v1.9 controlled-risk model.
 
 ## What changed in v2.0
 
@@ -89,3 +89,13 @@ This makes score 4 stricter because it is the weakest tradeable score. Stronger 
 | v1.9 | May 02 2026 | Updated score-based risk sizing: $30/$40/$50, hard `max_units=20000`, updated docs and Telegram startup template. |
 | v1.7 | May 02 2026 | Telegram noise reduction: WATCHING alerts below score 4 suppressed by default. |
 | v1.6 | Apr 2026 | Fixed-pip EUR/USD SL/TP and margin guard improvements. |
+
+
+## v2.1 Daily Safety Controls
+
+| Control | v2.1 value | Purpose |
+|---|---:|---|
+| `max_losing_trades_day` | `3` | Stop new entries after 3 losing trades in the trading day. |
+| `daily_risk_cap_usd` | `$120` | Stop new entries when realized + open P/L reaches `-$120` for the day. |
+
+Telegram startup now shows: `Day reset: 08:00 SGT | Loss cap: 3/day | Risk cap: $120/day`.

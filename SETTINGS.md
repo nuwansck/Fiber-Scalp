@@ -1,4 +1,4 @@
-# Fiber Scalp v2.0 — Settings Reference
+# Fiber Scalp v2.1 — Settings Reference
 
 ## Core risk settings
 
@@ -87,3 +87,13 @@ Telegram should send actionable items only: score 4+ signals, H1 blocks, opened/
 ## Why v2.0 changed H1 handling
 
 Score 4 is the weakest allowed entry score, so it now requires H1 trend confirmation. Score 5/6 setups are stronger, so neutral H1 is allowed, but clear opposite H1 is blocked to avoid counter-trend trades.
+
+
+## v2.1 Daily Safety Controls
+
+| Control | v2.1 value | Purpose |
+|---|---:|---|
+| `max_losing_trades_day` | `3` | Stop new entries after 3 losing trades in the trading day. |
+| `daily_risk_cap_usd` | `$120` | Stop new entries when realized + open P/L reaches `-$120` for the day. |
+
+Telegram startup now shows: `Day reset: 08:00 SGT | Loss cap: 3/day | Risk cap: $120/day`.

@@ -117,7 +117,7 @@ def load_settings() -> dict:
 
     original_keys = set(settings.keys())
 
-    settings.setdefault('bot_name', 'Fiber Scalp v2.0')
+    settings.setdefault('bot_name', 'Fiber Scalp v2.1')
     settings.setdefault('enabled', True)
     settings.setdefault('cycle_minutes', 5)
     settings.setdefault('db_retention_days', 90)
@@ -130,7 +130,8 @@ def load_settings() -> dict:
     # ── Persistent defaults — applied on startup if not in volume settings ───
     settings.setdefault('spread_limits', {'London': 4, 'US': 5, 'Tokyo': 4})
     settings.setdefault('max_trades_day', 20)
-    settings.setdefault('max_losing_trades_day', 8)
+    settings.setdefault('max_losing_trades_day', 3)
+    settings.setdefault('daily_risk_cap_usd', 120)
     settings.setdefault('max_trades_london', 10)
     settings.setdefault('max_trades_us', 10)
     settings.setdefault('max_losing_trades_session', 4)
