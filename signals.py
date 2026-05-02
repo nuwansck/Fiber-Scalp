@@ -81,15 +81,29 @@ def _build_orb_sessions(settings: dict | None = None) -> dict:
 def score_to_position_usd(score: int, settings: dict | None = None) -> int:
     """Return the risk-dollar position size for a given score.
 
-    Scores below the signal_threshold never reach trade execution —
-    callers are responsible for that gate. Score=3 returns the partial
-    size as a convenience for signal preview logic, not as a live order.
+    v1.8 supports explicit score-based risk sizing:
+      score 4 -> $25, score 5 -> $35, score 6 -> $40 by default.
+    Legacy position_full_usd / position_partial_usd fields are kept as
+    fallback so older settings files still work.
     """
-    full    = int((settings or {}).get("position_full_usd",    48))
-    partial = int((settings or {}).get("position_partial_usd", 30))
-    for threshold, size in [(4, full), (2, partial)]:
-        if score > threshold:
-            return size
+    s = settings or {}
+    score_risk = s.get("score_risk_usd") or {}
+    # JSON object keys are strings; support int keys too for tests/manual use.
+    for key in (str(score), score):
+        if key in score_risk:
+            try:
+                return max(int(score_risk[key]), 0)
+            except (TypeError, ValueError):
+                break
+
+    full    = int(s.get("position_full_usd",    35))
+    partial = int(s.get("position_partial_usd", 25))
+    if score >= 6:
+        return max(int(s.get("score_6_risk_usd", 40)), 0)
+    if score >= 5:
+        return max(full, 0)
+    if score >= 4:
+        return max(partial, 0)
     return 0
 
 

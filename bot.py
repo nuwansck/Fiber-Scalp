@@ -200,9 +200,11 @@ def validate_settings(settings: dict) -> dict:
         raise ValueError(f"Missing required settings keys: {missing}")
 
     settings.setdefault("signal_threshold",           4)
-    # 2.4% risk/trade on $2,000 account (full $48) / 1.5% (partial $30)
-    settings.setdefault("position_full_usd",          60)
-    settings.setdefault("position_partial_usd",       45)
+    # v1.8 calmer score-based risk sizing. Legacy fields kept as fallback.
+    settings.setdefault("position_full_usd",          35)  # fallback for score 5
+    settings.setdefault("position_partial_usd",       25)  # fallback for score 4
+    settings.setdefault("score_risk_usd",             {"4": 25, "5": 35, "6": 40})
+    settings.setdefault("max_units",                  20000)
     settings.setdefault("account_balance_override",   0)
     settings.setdefault("enabled",                    True)
     settings.setdefault("pip_size",                   0.0001)
@@ -217,7 +219,7 @@ def validate_settings(settings: dict) -> dict:
     settings.setdefault("auto_scale_on_margin_reject",True)
     settings.setdefault("telegram_show_margin",       True)
     # Suppress WATCHING alerts for signals below this score (0 = send all)
-    settings.setdefault("telegram_min_score_alert",   3)
+    settings.setdefault("telegram_min_score_alert",   4)
     settings.setdefault("friday_cutoff_hour_sgt",     23)
     settings.setdefault("friday_cutoff_minute_sgt",   0)
     settings.setdefault("news_lookahead_min",         120)
@@ -580,6 +582,9 @@ def apply_margin_guard(trader, instrument: str, requested_units: float,
                      "requested_units": norm_req, "final_units": 0.0}
 
     max_units   = (free_margin * margin_safety) / (entry_price * margin_rate)
+    hard_max_units = float(settings.get("max_units", 0) or 0)
+    if hard_max_units > 0:
+        max_units = min(max_units, hard_max_units)
     norm_capped = trader.normalize_units(instrument, min(norm_req, max_units))
     fin_marg    = trader.estimate_required_margin(instrument, norm_capped, entry_price)
     status = "NORMAL" if abs(norm_capped - norm_req) < 1e-9 else "ADJUSTED"
@@ -1342,7 +1347,7 @@ def _signal_phase(db, run_id, settings, alert, trader, history,
                               "last_signal_msg": msg})
             save_signal_cache(sig_cache, instrument)
 
-    _tg_min_score = int(settings.get("telegram_min_score_alert", 3))
+    _tg_min_score = int(settings.get("telegram_min_score_alert", 4))
     if direction == "NONE" or position_usd <= 0:
         if score >= _tg_min_score or _tg_min_score == 0:
             _send_signal_update("WATCHING", _clean_reason(details),

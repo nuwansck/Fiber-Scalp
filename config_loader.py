@@ -117,7 +117,7 @@ def load_settings() -> dict:
 
     original_keys = set(settings.keys())
 
-    settings.setdefault('bot_name', 'Fiber Scalp v1.5')
+    settings.setdefault('bot_name', 'Fiber Scalp v1.8')
     settings.setdefault('enabled', True)
     settings.setdefault('cycle_minutes', 5)
     settings.setdefault('db_retention_days', 90)
@@ -174,7 +174,11 @@ def load_settings() -> dict:
     settings.setdefault('tp2_rr_reference',           3.0)
     # minimum units after margin guard — reject micro-orders gracefully
     settings.setdefault('min_trade_units',           1000)
-    settings.setdefault('telegram_min_score_alert',   3)  # suppress WATCHING below this score
+    settings.setdefault('max_units',                 20000)
+    settings.setdefault('score_risk_usd',             {'4': 25, '5': 35, '6': 40})
+    settings.setdefault('position_partial_usd',       25)  # legacy fallback for score 4
+    settings.setdefault('position_full_usd',          35)  # legacy fallback for score 5
+    settings.setdefault('telegram_min_score_alert',   4)  # suppress WATCHING below this score
     # EUR/USD fixed pip SL/TP — pip_value_usd static $10.00 (USD-quoted pair)
     settings.setdefault('pair_sl_tp', {
         'EUR_USD': {'sl_pips': 18, 'tp_pips': 30, 'pip_value_usd': 10.0, 'be_trigger_pips': 20},

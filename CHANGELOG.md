@@ -1,7 +1,32 @@
+# Changelog
+
+## v1.8.0 — 2026-05-02
+
+### Changed
+- Added score-based risk sizing using `score_risk_usd`:
+  - Score 4 → $25 risk
+  - Score 5 → $35 risk
+  - Score 6 → $40 risk
+- Added hard `max_units = 20000` cap in the margin guard.
+- Updated startup Telegram template to show the new risk ladder.
+- Updated README, SETTINGS, and Confluence-ready documentation.
+
+### Unchanged
+- EUR/USD SL/TP remains 18 pips / 30 pips.
+- Minimum execution score remains 4/6.
+- Telegram WATCHING alert threshold remains score ≥4.
+
+## v1.7.0 — 2026-05-02
+
+### Changed
+- Telegram WATCHING alerts now require `telegram_min_score_alert >= 4` by default.
+- Updated `settings.json`, `settings.json.example`, `bot.py`, `config_loader.py`, and `scheduler.py` fallback defaults from `3` to `4`.
+- Score `3/6` setups remain available in logs/database but no longer create Telegram noise by default.
+
 # Fiber Scalp — Changelog
 ---
 
-## v1.6.0 — 2026-04-26
+## v1.7.0 — 2026-04-26
 
 ### Fix — Weekly/monthly report crash: `KeyError: 'wins'`
 

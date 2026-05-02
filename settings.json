@@ -1,5 +1,5 @@
 {
-  "bot_name": "Fiber Scalp v1.6",
+  "bot_name": "Fiber Scalp v1.8",
   "demo_mode": true,
   "enabled": true,
   "_comment_pairs": "Per-pair settings override any matching global key for that pair's cycle.",
@@ -18,8 +18,8 @@
   },
   "_comment_global": "Global defaults \u2014 used as fallback when a key is absent from the pair block.",
   "signal_threshold": 4,
-  "position_full_usd": 60,
-  "position_partial_usd": 45,
+  "position_full_usd": 35,
+  "position_partial_usd": 25,
   "pip_size": 0.0001,
   "breakeven_enabled": false,
   "margin_safety_factor": 0.6,
@@ -101,9 +101,15 @@
     }
   },
   "min_trade_units": 1000,
-  "telegram_min_score_alert": 3,
+  "telegram_min_score_alert": 4,
   "h1_filter_enabled": true,
   "h1_filter_mode": "soft",
   "h1_ema_period": 21,
-  "be_trigger_pips": 20
+  "be_trigger_pips": 20,
+  "score_risk_usd": {
+    "4": 25,
+    "5": 35,
+    "6": 40
+  },
+  "max_units": 20000
 }
